@@ -9,7 +9,7 @@ int main()
 {
     int client_sock;
     char buffer[1024];
-    int server_sock = socket(AF_INET, SOCK_STREAM, 0); //descriptor socket
+    int server_sock = socket(AF_INET, SOCK_STREAM, 0); //descriptor socket - IPv4, TCP, default protocol
     if (server_sock < 0)
         printf("failed to create socket!\n");
         return -1;
