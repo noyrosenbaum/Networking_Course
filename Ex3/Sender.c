@@ -10,6 +10,13 @@
 
 int main()
 {
+    //Read 1MB file
+    FILE *message = fopen("test.txt", "r");
+    if(message == NULL) {
+        perror("File is Empty\n");
+        return -1;
+    }
+
     int client_sock;
     char buffer[1024];
     int client_sock = socket(AF_INET, SOCK_STREAM, 0); // Create socket - IPv4, TCP, default protocol
@@ -26,17 +33,18 @@ int main()
     server_addr.sin_port = htons(CLIENT_PORT);
     if (inet_pton(AF_INET, CLIENT_IP, &server_addr.sin_addr) <= 0) // server_addr.sin_addr.s_addr = inet_pton(CLIENT_IP);
     {
-        printf("Convert was not succeful\n");
+        perror("Convert was not succeful\n");
         return -1;
     }
 
     if (connect(client_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
     {
-        printf("connection failed :(\n");
+        perror("connection failed :(\n");
         return -1;
     };
     // sent()
 
     close(client_sock);
+    fclose(message);
     return 0;
 }
