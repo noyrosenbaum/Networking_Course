@@ -7,19 +7,22 @@
 #include <arpa/inet.h>
 #define CLIENT_PORT 8080
 #define CLIENT_IP "127.0.0.1"
+#define BUFFER_SIZE 1024
 
 int main()
 {
-    //Read 1MB file
+    // Read 1MB file
     FILE *message = fopen("test.txt", "r");
-    if(message == NULL) {
+    if (message == NULL)
+    {
         perror("File is Empty\n");
         return -1;
     }
 
+
     int client_sock;
-    char buffer[1024];
-    int client_sock = socket(AF_INET, SOCK_STREAM, 0); // Create socket - IPv4, TCP, default protocol
+    // Create socket - IPv4, TCP, default protocol
+    int client_sock = socket(AF_INET, SOCK_STREAM, 0); 
     if (client_sock < 0)
         printf("failed to create socket!\n");
     return -1;
@@ -28,10 +31,12 @@ int main()
     struct sockaddr_in server_addr;
     socklen_t addr_size;
 
-    memset(&server_addr, '\0', sizeof(server_addr)); // clean
-    server_addr.sin_family = AF_INET;                // configure details
+    // clean
+    memset(&server_addr, '\0', sizeof(server_addr));
+    // configure details 
+    server_addr.sin_family = AF_INET;                
     server_addr.sin_port = htons(CLIENT_PORT);
-    if (inet_pton(AF_INET, CLIENT_IP, &server_addr.sin_addr) <= 0) // server_addr.sin_addr.s_addr = inet_pton(CLIENT_IP);
+    if (inet_pton(AF_INET, CLIENT_IP, &server_addr.sin_addr) <= 0) 
     {
         perror("Convert was not succeful\n");
         return -1;
