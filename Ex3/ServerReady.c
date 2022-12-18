@@ -18,6 +18,7 @@
 #define SERVER_PORT 5060 // The port that the server listens
 #define BUFFER_SIZE 1024
 #define CHUNK 1024 // Read 1024 bytes at a time
+static double totalTimes = 0;
 
 int acceptAndRecieveSocket(int socket)
 {
@@ -115,45 +116,49 @@ int main()
         close(listeningSocket);
         return -1;
     }
-    
-    //measure time of first arrival with Cubic
-    struct timeval begin, end;
-    gettimeofday(&begin, 0);
-    acceptAndRecieveSocket(listeningSocket);
-    gettimeofday(&end, 0);
-    long seconds = end.tv_sec - begin.tv_sec;
-    long microsec = end.tv_usec - begin.tv_usec;
-    double elapsed = seconds + microsec * 1e-6;
-    printf("Time measured for the first part: %f seconds (Cubic session)/n", elapsed);
 
+    // measure time of first arrival with Cubic
+    int i = 0;
+    while (++i < 5)
+    {
+        struct timeval begin, end;
+        gettimeofday(&begin, 0);
+        acceptAndRecieveSocket(listeningSocket);
+        gettimeofday(&end, 0);
+        long seconds = end.tv_sec - begin.tv_sec;
+        long microsec = end.tv_usec - begin.tv_usec;
+        double elapsed = seconds + microsec * 1e-6;
+        printf("Time measured for the first part: %f seconds (Cubic session)/n", elapsed);
+    }
 
-    //change to reno 
-     printf("Change to Reno method\n");
-     char BUF[BUFFER_SIZE];
-     strcpy(BUF, "reno");
-     if(setsockopt(listeningSocket, IPPROTO_TCP, TCP_CONGESTION, BUF, sizeof(BUF)) != 0)
-     {
+    // change to reno
+    printf("Change to Reno method\n");
+    char BUF[BUFFER_SIZE];
+    strcpy(BUF, "reno");
+    if (setsockopt(listeningSocket, IPPROTO_TCP, TCP_CONGESTION, BUF, sizeof(BUF)) != 0)
+    {
         perror("setsockopt");
         return -1;
-     }
+    }
 
-    //measure time of second arrival with Reno
-    struct timeval beginReno, endReno;
-    gettimeofday(&beginReno, 0);
-    acceptAndRecieveSocket(listeningSocket);
-    gettimeofday(&endReno, 0);
-    long secondsReno = endReno.tv_sec - beginReno.tv_sec;
-    long microsecReno = endReno.tv_usec - beginReno.tv_usec;
-    double elapsedReno = secondsReno + microsecReno * 1e-6;
-    printf("Time measured for the second part: %f seconds (Reno session)/n", elapsedReno);
+    // measure time of second arrival with Reno
+    int i = 0;
+    while (++i < 5)
+    {
+        struct timeval beginReno, endReno;
+        gettimeofday(&beginReno, 0);
+        acceptAndRecieveSocket(listeningSocket);
+        gettimeofday(&endReno, 0);
+        long secondsReno = endReno.tv_sec - beginReno.tv_sec;
+        long microsecReno = endReno.tv_usec - beginReno.tv_usec;
+        double elapsedReno = secondsReno + microsecReno * 1e-6;
+        printf("Time measured for the second part: %f seconds (Reno session)/n", elapsedReno);
+    }
 
-    //answer to exit message
-    double totalTimes = elapsed + elapsedReno;
-    printf("Total time of recieving file is: %f", totalTimes);
-    
+    // answer to exit message
+    // double totalTimes = elapsed + elapsedReno;
+    // printf("Total time of recieving file is: %f", totalTimes);
 
-
-    
     close(listeningSocket);
     return 0;
 }
