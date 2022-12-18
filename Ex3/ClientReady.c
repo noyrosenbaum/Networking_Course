@@ -30,7 +30,7 @@ void authenticator()
 void sendExitMessage(int socket)
 {
     char buffer[BUFFER_SIZE] = {'\0'};
-    char message[] = "This an exit message, session is closed\n";
+    char message[] = "EXIT\n";
     int messageLen = strlen(message) + 1;
 
     int bytesSent = send(socket, message, messageLen, 0);

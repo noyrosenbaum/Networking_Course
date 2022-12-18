@@ -138,6 +138,7 @@ int main()
         printf("Time measured for the first part: %f seconds (Cubic session)/n", elapsed);
     }
 
+    
     // change to reno
     printf("Change to Reno method\n");
     char BUF[BUFFER_SIZE];
