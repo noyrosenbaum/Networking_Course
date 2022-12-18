@@ -22,9 +22,9 @@
 
 void authenticator()
 {
-    // 206530172
-    // 209498211
-    //  int XOR = ();
+    // 0172
+    // 8211
+    // printf()
 }
 
 void sendToReceiver(int socket)
@@ -35,10 +35,13 @@ void sendToReceiver(int socket)
     size_t file_size;
     FILE *message;
     message = fopen("test.txt", "r");
-    long int size = ftell(message);
-    while ((file_size = fread(buf, 1, sizeof(buf), message)) > 0)
+    int sum = 0;
+    // long int size = ftell(message);
+    while ((file_size = fread(buf, 1, sizeof(buf), message)) > 0 && sum < file_size / 2)
     {
         int bytesSent = send(socket, buf, CHUNK, 0);
+        sum += CHUNK;
+        bzero(buffer, BUFFER_SIZE);
         if (bytesSent == -1)
         {
             printf("send() failed with error code : %d.\n", errno);
@@ -96,13 +99,29 @@ int main()
 
     printf("connected to server\n");
 
-    // Sends some data to server - Cubic
+    // //sends size of file
+    // char buffer[BUFFER_SIZE] = {'\0'};
+    // char message[] = "Hello, from the Client\n";
+    // int messageLen = strlen(message) + 1;
+
+    // int bytesSent = send(sock, message, messageLen, 0);
+
+    // if (bytesSent == -1) {
+    //     printf("send() failed with error code : %d", errno);
+    // } else if (bytesSent == 0) {
+    //     printf("peer has closed the TCP connection prior to send().\n");
+    // } else if (bytesSent < messageLen) {
+    //     printf("sent only %d bytes from the required %d.\n", messageLen, bytesSent);
+    // } else {
+    //     printf("message was successfully sent.\n");
+    // }
+
+    // Sends first part to server - Cubic
     int i = 0;
-    while (++i < 5)
+    while (i++ < 5)
     {
         sendToReceiver(client_sock);
     }
-    close(client_sock);
 
     // change to Reno
     printf("Change to Reno method\n");
@@ -114,13 +133,31 @@ int main()
         return -1;
     }
 
-    // Sends some data to server - Reno
+    // Sends second part to server - Reno
     int i = 0;
-    while (++i < 5)
+    while (i++ < 5)
     {
         sendToReceiver(client_sock);
     }
-    close(client_sock);
+
+    // User decision if to send file again
+    char decision[5];
+    gets(decision);
+    printf("Send the file again? Write 'yes' for sending again or 'exit' for finish session.%s", decision);
+    int yes = strcmp(decision, "yes");
+    int exit = strcmp(decision, "exit");
+    if (yes == 0)
+    {
+        printf("Sending file again\n");
+    }
+    else if (exit == 0)
+    {
+        printf("Exit the session\n");
+    }
+    else
+    {
+        printf("You didn't write 'yes' or 'exit'\n", errno);
+    }
 
     // char buffer[BUFFER_SIZE] = {'\0'};
     // char message[] = "Hello, from the Client\n";

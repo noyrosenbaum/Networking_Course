@@ -18,6 +18,7 @@
 #define SERVER_PORT 5060 // The port that the server listens
 #define BUFFER_SIZE 1024
 #define CHUNK 1024 // Read 1024 bytes at a time
+#define FILE_SIZE 1060424
 static double totalTimes = 0;
 
 int acceptAndRecieveSocket(int socket)
@@ -46,6 +47,12 @@ int acceptAndRecieveSocket(int socket)
         char buffer[BUFFER_SIZE];
         memset(buffer, 0, BUFFER_SIZE);
         int bytesReceived = recv(clientSocket, buffer, BUFFER_SIZE, 0);
+        int sum = 0;
+        while (bytesReceived > 0 && sum < FILE_SIZE / 2)
+        {
+            sum += bytesReceived;
+            bzero(buffer, BUFFER_SIZE);
+        }
         if (bytesReceived == -1)
         {
             printf("recv failed with error code : %d", errno);
