@@ -125,8 +125,8 @@ int main()
     }
 
     // measure time of first arrival with Cubic
-    int i = 0;
-    while (++i < 5)
+    int j = 0;
+    while (j++ < 5)
     {
         struct timeval begin, end;
         gettimeofday(&begin, 0);
@@ -150,7 +150,7 @@ int main()
 
     // measure time of second arrival with Reno
     int i = 0;
-    while (++i < 5)
+    while (i++ < 5)
     {
         struct timeval beginReno, endReno;
         gettimeofday(&beginReno, 0);
