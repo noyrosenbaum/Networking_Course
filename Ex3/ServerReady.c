@@ -27,6 +27,8 @@ int acceptAndRecieveSocket(int socket)
     printf("Waiting for incoming TCP-connections...\n");
     struct sockaddr_in clientAddress;
     socklen_t clientAddressLen = sizeof(clientAddress);
+    //authentication maessage - XOR last 4 digits of IDs
+    char authentication[] = "10000010111111";
 
     while (1)
     {
@@ -43,7 +45,7 @@ int acceptAndRecieveSocket(int socket)
 
         printf("A new client connection accepted\n");
 
-        // Receive a message from client
+        // Receive chunks of data from client
         char buffer[BUFFER_SIZE];
         memset(buffer, 0, BUFFER_SIZE);
         int bytesReceived = recv(clientSocket, buffer, BUFFER_SIZE, 0);
@@ -62,7 +64,29 @@ int acceptAndRecieveSocket(int socket)
             return -1;
         }
 
-        printf("Received: %s", buffer);
+        printf("Received: %d", sum);
+
+        //send authentication to client
+        int bytesSent = send(clientSocket, authentication, sizeof(authentication), 0);
+        if (bytesSent == -1)
+        {
+            printf("send() failed with error code : %d", errno);
+            close(socket);
+            close(clientSocket);
+            return -1;
+        }
+        else if (bytesSent == 0)
+        {
+            printf("peer has closed the TCP connection prior to send().\n");
+        }
+        else if (bytesSent < sizeof(authentication))
+        {
+            printf("sent only %d bytes from the required %d.\n", sizeof(authentication), bytesSent);
+        }
+        else
+        {
+            printf("message was successfully sent.\n");
+        }
     }
 }
 
@@ -135,10 +159,9 @@ int main()
         long seconds = end.tv_sec - begin.tv_sec;
         long microsec = end.tv_usec - begin.tv_usec;
         double elapsed = seconds + microsec * 1e-6;
-        printf("Time measured for the first part: %f seconds (Cubic session)/n", elapsed);
+        printf("Time measured for the first part: %f seconds (Cubic session)\n", elapsed);
     }
 
-    
     // change to reno
     printf("Change to Reno method\n");
     char BUF[BUFFER_SIZE];
@@ -163,7 +186,8 @@ int main()
         printf("Time measured for the second part: %f seconds (Reno session)/n", elapsedReno);
     }
 
-    // answer to exit message
+    // receive message from server
+
     // double totalTimes = elapsed + elapsedReno;
     // printf("Total time of recieving file is: %f", totalTimes);
 
