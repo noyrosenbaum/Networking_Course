@@ -91,7 +91,33 @@ int recvfileChunks(int cSocket, void *buffer, int maxBuffer)
     return bytesReceived;
 }
 
-// Measure time of a certain part
+//Measure time
+// int measureTime()
+
+// send to client
+int sendToClient(int cSocket, void *buffer, int maxBuffer)
+{
+    int bytesSend = send(cSocket, buffer, maxBuffer, 0);
+    if (bytesSend == -1)
+    {
+        printf("send() failed with error code : %d", errno);
+        close(cSocket);
+        return -1;
+    }
+    else if (bytesSend == 0)
+    {
+        printf("peer has closed the TCP connection prior to send().\n");
+    }
+    else if (bytesSend < maxBuffer)
+    {
+        printf("sent only %d bytes from the required %d.\n", bytesSend, maxBuffer);
+    }
+    else
+    {
+        printf("message was successfully sent.\n");
+    }
+    return bytesSend;
+}
 
 int main()
 {
@@ -126,20 +152,20 @@ int main()
 
     // sum the bytes so it will not pass half of file size
     int sum = 0;
-    struct timeval begin, end;
+    struct timeval beginCubic, endCubic;
     struct timeval beginReno, endReno;
 
     // ADD CONDIION WHICH DIFFER THE ALGOROTHMS BELOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     while ((bytesRecived > 0) && sum < (FILE_SIZE / 2))
     {
-        gettimeofday(&begin, 0);
+        gettimeofday(&beginCubic, 0);
         sum += bytesRecived;
         // bzero(buffer, BUFFER_SIZE); add???????
         if (sum == FILE_SIZE / 2)
         {
-            gettimeofday(&end, 0);
-            long seconds = end.tv_sec - begin.tv_sec;
-            long microsec = end.tv_usec - begin.tv_usec;
+            gettimeofday(&endCubic, 0);
+            long seconds = endCubic.tv_sec - beginCubic.tv_sec;
+            long microsec = endCubic.tv_usec - beginCubic.tv_usec;
             double elapsed = seconds + microsec * 1e-6;
             printf("Time measured for the first part: %f seconds (Cubic session)\n", elapsed);
         }
@@ -153,9 +179,7 @@ int main()
     // authentication maessage - XOR last 4 digits of IDs
     printf("Sending authentication message to client\n");
     char authentication[] = "10000010111111";
-    //send function i need to build which sends the message above to client
-    //sendToClient()
-
+    sendToClient(clientSocket, &authentication, sizeof(authentication));
 
     return 0;
 }
