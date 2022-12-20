@@ -15,6 +15,7 @@
 #define CHUNK 1024 // Read 1024 bytes at a time
 #define FILE_SIZE 1060424
 static double totalTimes = 0;
+int maxBuffer = 1024;
 
 int createSocket(struct sockaddr_in *serverAddress)
 {
@@ -75,6 +76,21 @@ int createSocket(struct sockaddr_in *serverAddress)
     return listeningSocket;
 }
 
+// Recieve chunks of file - when inserting parameters to function - we write the pointer of the wanted values
+int recvfileChunks(int cSocket, void *buffer, int maxBuffer)
+{
+    int bytesReceived = recv(cSocket, buffer, BUFFER_SIZE, 0);
+    if (bytesReceived == -1)
+    {
+        printf("recv failed with error code : %d", errno);
+        close(cSocket);
+        return -1;
+    }
+
+    printf("Received: %d", buffer);
+    return bytesReceived;
+}
+
 int main()
 {
     // Create Client socket
@@ -82,12 +98,14 @@ int main()
     struct sockaddr_in serverAddress;
     serverSocket = createSocket(&serverAddress);
     printf("Listen to client\n");
-    // Accept and incoming connection
+
+    // Build Client information
     printf("Waiting for incoming TCP-connections...\n");
     struct sockaddr_in clientAddress;
     socklen_t clientAddressLen = sizeof(clientAddress);
     memset(&clientAddress, 0, sizeof(clientAddress));
     clientAddressLen = sizeof(clientAddress);
+
     // Accepts incoming connections
     int clientSocket = accept(serverSocket, (struct sockaddr *)&clientAddress, &clientAddressLen);
     if (clientSocket == -1)
@@ -97,7 +115,14 @@ int main()
         close(serverSocket);
         return -1;
     }
-
     printf("A new client connection accepted\n");
+
+    // receive data chucks from client
+    char buffer[maxBuffer];
+    memset(buffer, 0, maxBuffer);
+    recvfileChunks(clientSocket, &buffer, sizeof(maxBuffer));
+
+    // sum the bytes so it will not pass half of file size
+
     return 0;
 }
