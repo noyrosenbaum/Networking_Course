@@ -91,9 +91,6 @@ int recvfileChunks(int cSocket, void *buffer, int maxBuffer)
     return bytesReceived;
 }
 
-// Measure time
-//  int measureTime()
-
 // send to client
 int sendToClient(int cSocket, void *buffer, int maxBuffer)
 {
