@@ -85,8 +85,8 @@ void sendFileToReceiver(int socket)
 int main()
 {
     // Create socket
-    int client_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (client_sock == -1)
+    int clientSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (clientSocket == -1)
     {
         printf("Could not create socket : %d", errno);
         return -1;
@@ -108,12 +108,12 @@ int main()
     }
 
     // Make a connection to the server with socket SendingSocket.
-    int connectResult = connect(client_sock, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
+    int connectResult = connect(clientSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
     if (connectResult == -1)
     {
         printf("connect() failed with error code : %d", errno);
         // cleanup the socket;
-        close(client_sock);
+        close(clientSocket);
         return -1;
     }
 
@@ -140,7 +140,7 @@ int main()
     int i = 0;
     while (i++ < 5)
     {
-        sendToReceiver(client_sock);
+        sendToReceiver(clientSocket);
     }
 
     // cc function
@@ -151,7 +151,7 @@ int main()
     //     printf("Change to %s method\n", algorithm);
     //     char BUF[BUFFER_SIZE];
     //     strcpy(BUF, "reno");
-    //     if (setsockopt(client_sock, IPPROTO_TCP, TCP_CONGESTION, BUF, sizeof(BUF)) != 0)
+    //     if (setsockopt(clientSocket, IPPROTO_TCP, TCP_CONGESTION, BUF, sizeof(BUF)) != 0)
     //     {
     //         perror("setsockopt");
     //         return -1;
@@ -162,7 +162,7 @@ int main()
     printf("Change to reno method\n");
     char BUF[BUFFER_SIZE];
     strcpy(BUF, "reno");
-    if (setsockopt(client_sock, IPPROTO_TCP, TCP_CONGESTION, BUF, sizeof(BUF)) != 0)
+    if (setsockopt(clientSocket, IPPROTO_TCP, TCP_CONGESTION, BUF, sizeof(BUF)) != 0)
     {
         perror("setsockopt");
         return -1;
@@ -172,7 +172,7 @@ int main()
     int j = 0;
     while (j++ < 5)
     {
-        sendToReceiver(client_sock);
+        sendToReceiver(clientSocket);
     }
 
     // User decision if to send file again or exit
@@ -190,7 +190,7 @@ int main()
             printf("Change to cubic method\n");
             char BUF[BUFFER_SIZE];
             strcpy(BUF, "cubic");
-            if (setsockopt(client_sock, IPPROTO_TCP, TCP_CONGESTION, BUF, sizeof(BUF)) != 0)
+            if (setsockopt(clientSocket, IPPROTO_TCP, TCP_CONGESTION, BUF, sizeof(BUF)) != 0)
             {
                 perror("setsockopt");
                 return -1;
@@ -199,13 +199,13 @@ int main()
             int k = 0;
             while (k++ < 5)
             {
-                sendToReceiver(client_sock);
+                sendToReceiver(clientSocket);
             }
             // change to reno
             printf("Change to reno method\n");
             char BUF[BUFFER_SIZE];
             strcpy(BUF, "reno");
-            if (setsockopt(client_sock, IPPROTO_TCP, TCP_CONGESTION, BUF, sizeof(BUF)) != 0)
+            if (setsockopt(clientSocket, IPPROTO_TCP, TCP_CONGESTION, BUF, sizeof(BUF)) != 0)
             {
                 perror("setsockopt");
                 return -1;
@@ -214,14 +214,14 @@ int main()
             int p = 0;
             while (p++ < 5)
             {
-                sendToReceiver(client_sock);
+                sendToReceiver(clientSocket);
             }
         }
         else if (exit == 0)
         {
             printf("Exit the session\n");
-            sendExitMessage(client_sock);
-            close(client_sock);
+            sendExitMessage(clientSocket);
+            close(clientSocket);
         }
         else
         {
@@ -233,7 +233,7 @@ int main()
     // char message[] = "Hello, from the Client\n";
     // int messageLen = strlen(message) + 1;
 
-    // int bytesSent = send(client_sock, message, messageLen, 0);
+    // int bytesSent = send(clientSocket, message, messageLen, 0);
 
     // if (bytesSent == -1) {
     //     printf("send() failed with error code : %d", errno);
@@ -247,7 +247,7 @@ int main()
 
     // Receive data from server
     // char bufferReply[BUFFER_SIZE] = {'\0'};
-    // int bytesReceived = recv(client_sock, bufferReply, BUFFER_SIZE, 0);
+    // int bytesReceived = recv(clientSocket, bufferReply, BUFFER_SIZE, 0);
     // if (bytesReceived == -1)
     // {
     //     printf("recv() failed with error code : %d", errno);
@@ -261,6 +261,6 @@ int main()
     //     printf("received %d bytes from server: %s\n", bytesReceived, bufferReply);
     // }
 
-    // close(client_sock);
+    // close(clientSocket);
     return 0;
 }

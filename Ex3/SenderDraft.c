@@ -14,6 +14,7 @@
 #define CHUNK 1024 // Read 1024 bytes at a time
 #define BUFFER_SIZE 1024
 
+//Craete new socket
 int createSocket(struct sockaddr_in *serverAddress)
 {
     int client_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -46,6 +47,17 @@ int main()
     struct sockaddr_in serverAddress;
     clientSocket = createSocket(&serverAddress);
 
+    // Make a connection to the server with socket SendingSocket.
+    int connectResult = connect(clientSocket, (struct sockaddr*) &serverAddress, sizeof(serverAddress));
+    if (connectResult == -1)
+    {
+        printf("connect() failed with error code : %d", errno);
+        // cleanup the socket;
+        close(clientSocket);
+        return -1;
+    }
+
+    printf("connected to server\n");
     return 0;
 }
 
