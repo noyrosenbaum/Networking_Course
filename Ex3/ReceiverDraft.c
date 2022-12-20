@@ -91,8 +91,8 @@ int recvfileChunks(int cSocket, void *buffer, int maxBuffer)
     return bytesReceived;
 }
 
-//Measure time
-// int measureTime()
+// Measure time
+//  int measureTime()
 
 // send to client
 int sendToClient(int cSocket, void *buffer, int maxBuffer)
@@ -145,41 +145,72 @@ int main()
     }
     printf("A new client connection accepted\n");
 
-    // receive data chucks from client
-    char buffer[maxBuffer];
-    memset(buffer, 0, maxBuffer);
-    int bytesRecived = recvfileChunks(clientSocket, &buffer, sizeof(maxBuffer));
-
     // sum the bytes so it will not pass half of file size
     int sum = 0;
     struct timeval beginCubic, endCubic;
     struct timeval beginReno, endReno;
 
-    // ADD CONDIION WHICH DIFFER THE ALGOROTHMS BELOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    while ((bytesRecived > 0) && sum < (FILE_SIZE / 2))
+    // measure time
+    while (1)
     {
-        gettimeofday(&beginCubic, 0);
-        sum += bytesRecived;
-        // bzero(buffer, BUFFER_SIZE); add???????
-        if (sum == FILE_SIZE / 2)
+        // receive data chucks from client
+        char buffer[maxBuffer];
+        memset(buffer, 0, maxBuffer);
+        int bytesRecived = recvfileChunks(clientSocket, &buffer, sizeof(maxBuffer));
+        // cubic part
+        while ((bytesRecived > 0) && sum < (FILE_SIZE / 2))
         {
-            gettimeofday(&endCubic, 0);
-            long seconds = endCubic.tv_sec - beginCubic.tv_sec;
-            long microsec = endCubic.tv_usec - beginCubic.tv_usec;
-            double elapsed = seconds + microsec * 1e-6;
-            printf("Time measured for the first part: %f seconds (Cubic session)\n", elapsed);
+            gettimeofday(&beginCubic, 0);
+            sum += bytesRecived;
+            // bzero(buffer, BUFFER_SIZE); add???????
+            if (sum == FILE_SIZE / 2)
+            {
+                gettimeofday(&endCubic, 0);
+                long seconds = endCubic.tv_sec - beginCubic.tv_sec;
+                long microsec = endCubic.tv_usec - beginCubic.tv_usec;
+                double elapsedCubic = seconds + microsec * 1e-6;
+                printf("Time measured for the first part: %f seconds (Cubic session)\n", elapsedCubic);
+            }
+            else
+            {
+                printf("First part of file is not fully sent\n");
+            }
         }
-        else
+        // Send authentication massage to client
+        // authentication maessage - XOR last 4 digits of IDs
+        printf("Sending authentication message to client\n");
+        char authentication[] = "10000010111111";
+        sendToClient(clientSocket, &authentication, sizeof(authentication));
+
+        // change algorithm to reno
+        printf("Change to Reno method\n");
+        char BUF[BUFFER_SIZE];
+        strcpy(BUF, "reno");
+        if (setsockopt(serverSocket, IPPROTO_TCP, TCP_CONGESTION, BUF, sizeof(BUF)) != 0)
         {
-            printf("First part of file is not fully sent\n");
+            perror("setsockopt");
+            return -1;
+        }
+
+        // measure second part of file with reno algorithm
+        while (sum > (FILE_SIZE / 2))
+        {
+            gettimeofday(&beginReno, 0);
+            sum += bytesRecived;
+            if (sum == FILE_SIZE)
+            {
+                gettimeofday(&endReno, 0);
+                long secondsReno = endReno.tv_sec - beginReno.tv_sec;
+                long microsecReno = endReno.tv_usec - beginReno.tv_usec;
+                double elapsedReno = secondsReno + microsecReno * 1e-6;
+                printf("Time measured for the second part: %f seconds (Reno session)/n", elapsedReno);
+            }
+            else
+            {
+                printf("Second part of file is not fully sent\n");
+            }
         }
     }
-
-    // Send authentication massage to client
-    // authentication maessage - XOR last 4 digits of IDs
-    printf("Sending authentication message to client\n");
-    char authentication[] = "10000010111111";
-    sendToClient(clientSocket, &authentication, sizeof(authentication));
 
     return 0;
 }
