@@ -122,20 +122,40 @@ int main()
     // receive data chucks from client
     char buffer[maxBuffer];
     memset(buffer, 0, maxBuffer);
-    recvfileChunks(clientSocket, &buffer, sizeof(maxBuffer));
+    int bytesRecived = recvfileChunks(clientSocket, &buffer, sizeof(maxBuffer));
 
     // sum the bytes so it will not pass half of file size
     int sum = 0;
-    do
+    struct timeval begin, end;
+    struct timeval beginReno, endReno;
+
+    // ADD CONDIION WHICH DIFFER THE ALGOROTHMS BELOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    while ((bytesRecived > 0) && sum < (FILE_SIZE / 2))
     {
+        gettimeofday(&begin, 0);
+        sum += bytesRecived;
+        // bzero(buffer, BUFFER_SIZE); add???????
+        if (sum == FILE_SIZE / 2)
+        {
+            gettimeofday(&end, 0);
+            long seconds = end.tv_sec - begin.tv_sec;
+            long microsec = end.tv_usec - begin.tv_usec;
+            double elapsed = seconds + microsec * 1e-6;
+            printf("Time measured for the first part: %f seconds (Cubic session)\n", elapsed);
+        }
+        else
+        {
+            printf("First part of file is not fully sent\n");
+        }
+    }
 
-    } while ();
+    // Send authentication massage to client
+    // authentication maessage - XOR last 4 digits of IDs
+    printf("Sending authentication message to client\n");
+    char authentication[] = "10000010111111";
+    //send function i need to build which sends the message above to client
+    //sendToClient()
 
-    // while (bytesReceived > 0 && sum < FILE_SIZE / 2)
-    // {
-    //     sum += bytesReceived;
-    //     bzero(buffer, BUFFER_SIZE);
-    // }
-    
+
     return 0;
 }
