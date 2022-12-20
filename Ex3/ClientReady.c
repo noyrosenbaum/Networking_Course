@@ -56,7 +56,6 @@ void sendFileToReceiver(int socket)
     FILE *message;
     message = fopen("test.txt", "r");
     int sum = 0;
-    // long int size = ftell(message);
     while ((file_size = fread(buf, 1, sizeof(buf), message)) > 0 && sum < file_size / 2)
     {
         int bytesSent = send(socket, buf, CHUNK, 0);
@@ -177,7 +176,7 @@ int main()
 
     // User decision if to send file again or exit
     char decision[5];
-    gets(decision); // remove and put scantf
+    scanf("%s", decision);
     printf("Send the file again? Write 'yes' for sending again or 'exit' for finish session.%s", decision);
     int yes = strcmp(decision, "yes");
     int exit = strcmp(decision, "exit");

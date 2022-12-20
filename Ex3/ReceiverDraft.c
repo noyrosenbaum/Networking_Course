@@ -209,5 +209,13 @@ int main()
         }
     }
 
+    //exit message
+    // char buffer[maxBuffer];
+    // recvfileChunks(clientSocket, &buffer, sizeof(maxBuffer))
+    // if(strcmp(buffer, "exit"))
+    // {
+    //     printf("total times are:\n");
+    // }
+
     return 0;
 }

@@ -13,8 +13,13 @@
 #define SERVER_IP_ADDRESS "127.0.0.1"
 #define CHUNK 1024 // Read 1024 bytes at a time
 #define BUFFER_SIZE 1024
+#define FILE_SIZE 1060424
+int maxBuffer = 1024;
 
-//Craete new socket
+char firstPart[(FILE_SIZE / 2)] = {0};
+char secondPart[(FILE_SIZE / 2)] = {0};
+
+// Craete new socket
 int createSocket(struct sockaddr_in *serverAddress)
 {
     int client_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -23,7 +28,7 @@ int createSocket(struct sockaddr_in *serverAddress)
         printf("Could not create socket : %d", errno);
         return -1;
     }
-    
+
     memset(serverAddress, 0, sizeof(*serverAddress));
 
     serverAddress->sin_family = AF_INET;
@@ -37,18 +42,42 @@ int createSocket(struct sockaddr_in *serverAddress)
     }
     printf("Sender's socket successfully created\n");
     return client_sock;
+}
 
+// send to server
+int sendToServer(int sSocket, void *buffer, int maxBuffer)
+{
+    int bytesSend = send(sSocket, buffer, maxBuffer, 0);
+    if (bytesSend == -1)
+    {
+        printf("send() failed with error code : %d", errno);
+        close(sSocket);
+        return -1;
+    }
+    else if (bytesSend == 0)
+    {
+        printf("peer has closed the TCP connection prior to send().\n");
+    }
+    else if (bytesSend < maxBuffer)
+    {
+        printf("sent only %d bytes from the required %d.\n", bytesSend, maxBuffer);
+    }
+    else
+    {
+        printf("message was successfully sent.\n");
+    }
+    return bytesSend;
 }
 
 int main()
 {
-    //Create Client socket
+    // Create Client socket
     int clientSocket;
     struct sockaddr_in serverAddress;
     clientSocket = createSocket(&serverAddress);
 
     // Make a connection to the server with socket SendingSocket.
-    int connectResult = connect(clientSocket, (struct sockaddr*) &serverAddress, sizeof(serverAddress));
+    int connectResult = connect(clientSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
     if (connectResult == -1)
     {
         printf("connect() failed with error code : %d", errno);
@@ -58,6 +87,16 @@ int main()
     }
 
     printf("connected to server\n");
-    return 0;
-}
 
+
+    // file
+    //  Read 1MB file and sent it to Receiver
+    FILE *message;
+    message = fopen("test.txt", "r");
+    int freadFirstPart = fread(firstPart, 1, sizeof(firstPart), message);
+    int freadSecondPart = fread(secondPart, 1, sizeof(secondPart), message);
+
+    // send the first part of file
+    
+        return 0;
+}
