@@ -13,15 +13,30 @@
 
 # /////////////////////////
 
-all: ServerReady ClientReady
+# all: ServerReady ClientReady
 
-ServerReady: ServerReady.c
-	gcc -o ServerReady ServerReady.c
+# ServerReady: ServerReady.c
+# 	gcc -o ServerReady ServerReady.c
 
-ClientReady: ClientReady.c
-	gcc -o ClientReady ClientReady.c
+# ClientReady: ClientReady.c
+# 	gcc -o ClientReady ClientReady.c
+
+# .PHONY: clean
+
+# clean:
+# 	rm -f *.o ServerReady ClientReady
+
+# /////////////////////////
+
+all: ReceiverDraft SenderDraft
+
+ReceiverDraft: ReceiverDraft.c
+	gcc -o ReceiverDraft ReceiverDraft.c
+
+SenderDraft: SenderDraft.c
+	gcc -o SenderDraft SenderDraft.c
 
 .PHONY: clean
 
 clean:
-	rm -f *.o ServerReady ClientReady
+	rm -f *.o ReceiverDraft SenderDraft

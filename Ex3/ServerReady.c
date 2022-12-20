@@ -66,6 +66,13 @@ int acceptAndRecieveSocket(int socket)
 
         printf("Received: %d", sum);
 
+        //get exit message from server
+        // char *exitMessage = "exit";
+        // int messageLen = strlen(exitMessage) + 1;
+        // int bytesSentExit = recv(clientSocket, exitMessage, messageLen, 0);
+        
+
+
         //send authentication to client
         int bytesSent = send(clientSocket, authentication, sizeof(authentication), 0);
         if (bytesSent == -1)

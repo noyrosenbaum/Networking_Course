@@ -20,12 +20,6 @@
 #define CHUNK 1024 // Read 1024 bytes at a time
 #define BUFFER_SIZE 1024
 
-void authenticator()
-{
-    // 0172
-    // 8211
-    // printf()
-}
 
 void sendExitMessage(int socket)
 {
