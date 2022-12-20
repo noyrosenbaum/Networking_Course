@@ -14,7 +14,6 @@
 #define BUFFER_SIZE 1024
 #define CHUNK 1024 // Read 1024 bytes at a time
 #define FILE_SIZE 1060424
-static double totalTimes = 0;
 int maxBuffer = 1024;
 
 int createSocket(struct sockaddr_in *serverAddress)
@@ -146,6 +145,8 @@ int main()
     int sum = 0;
     struct timeval beginCubic, endCubic;
     struct timeval beginReno, endReno;
+    double elapsedCubic;
+    double elapsedReno;
 
     // measure time
     while (1)
@@ -165,7 +166,7 @@ int main()
                 gettimeofday(&endCubic, 0);
                 long seconds = endCubic.tv_sec - beginCubic.tv_sec;
                 long microsec = endCubic.tv_usec - beginCubic.tv_usec;
-                double elapsedCubic = seconds + microsec * 1e-6;
+                elapsedCubic = seconds + microsec * 1e-6;
                 printf("Time measured for the first part: %f seconds (Cubic session)\n", elapsedCubic);
             }
             else
@@ -199,7 +200,7 @@ int main()
                 gettimeofday(&endReno, 0);
                 long secondsReno = endReno.tv_sec - beginReno.tv_sec;
                 long microsecReno = endReno.tv_usec - beginReno.tv_usec;
-                double elapsedReno = secondsReno + microsecReno * 1e-6;
+                elapsedReno = secondsReno + microsecReno * 1e-6;
                 printf("Time measured for the second part: %f seconds (Reno session)/n", elapsedReno);
             }
             else
@@ -207,15 +208,30 @@ int main()
                 printf("Second part of file is not fully sent\n");
             }
         }
+        // write exit message to quit while loop and print the remain shit
+        char bufferReply[BUFFER_SIZE] = {'\0'};
+        int exitFromSender = recv(clientSocket, bufferReply, BUFFER_SIZE, 0);
+        if (strcmp(exitFromSender, "Exit"))
+        {
+            printf("Average of times: \n");
+            return 0;
+        }
+        else
+        {
+            return 1;
+        }
     }
-
-    //exit message
-    // char buffer[maxBuffer];
-    // recvfileChunks(clientSocket, &buffer, sizeof(maxBuffer))
-    // if(strcmp(buffer, "exit"))
-    // {
-    //     printf("total times are:\n");
-    // }
+    //it means we got an exit message
+    //print times
+    //cubic
+    printf("Cubic: %f", elapsedCubic);
+    //reno
+    printf("Reno: %f", elapsedReno);
+    //both
+    printf("Total time: ");
+    //average time
+    //COMPLITE!!!!!!!!!!
+    
 
     return 0;
 }
