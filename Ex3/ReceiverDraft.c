@@ -76,10 +76,10 @@ int createSocket(struct sockaddr_in *serverAddress)
     return listeningSocket;
 }
 
-// Recieve chunks of file - when inserting parameters to function - we write the pointer of the wanted values
+// Recieve chunks of file - when inserting parameters to function - we write the pointer of the wanted value
 int recvfileChunks(int cSocket, void *buffer, int maxBuffer)
 {
-    int bytesReceived = recv(cSocket, buffer, BUFFER_SIZE, 0);
+    int bytesReceived = recv(cSocket, buffer, maxBuffer, 0);
     if (bytesReceived == -1)
     {
         printf("recv failed with error code : %d", errno);
@@ -90,6 +90,8 @@ int recvfileChunks(int cSocket, void *buffer, int maxBuffer)
     printf("Received: %d", buffer);
     return bytesReceived;
 }
+
+// Measure time of a certain part
 
 int main()
 {
@@ -123,6 +125,17 @@ int main()
     recvfileChunks(clientSocket, &buffer, sizeof(maxBuffer));
 
     // sum the bytes so it will not pass half of file size
+    int sum = 0;
+    do
+    {
 
+    } while ();
+
+    // while (bytesReceived > 0 && sum < FILE_SIZE / 2)
+    // {
+    //     sum += bytesReceived;
+    //     bzero(buffer, BUFFER_SIZE);
+    // }
+    
     return 0;
 }
