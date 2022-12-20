@@ -88,8 +88,6 @@ int main()
 
     printf("connected to server\n");
 
-
-    // file
     //  Read 1MB file and sent it to Receiver
     FILE *message;
     message = fopen("test.txt", "r");
@@ -97,6 +95,33 @@ int main()
     int freadSecondPart = fread(secondPart, 1, sizeof(secondPart), message);
 
     // send the first part of file
-    
-        return 0;
+    sendToServer(clientSocket, &freadFirstPart, maxBuffer);
+
+    // check authentication from server
+    char authentication[] = "10000010111111";
+    char bufferReply[BUFFER_SIZE] = {'\0'};
+    int answer = recv(clientSocket, bufferReply, BUFFER_SIZE, 0);
+    if (strcmp(bufferReply, authentication))
+    {
+        printf("Authentication Approved\n");
+    }
+    else
+    {
+        printf("Authentication is not Approved\n");
+    }
+
+    // change to reno algorithm
+    printf("Change to reno method\n");
+    char BUF[BUFFER_SIZE];
+    strcpy(BUF, "reno");
+    if (setsockopt(clientSocket, IPPROTO_TCP, TCP_CONGESTION, BUF, sizeof(BUF)) != 0)
+    {
+        perror("setsockopt");
+        return -1;
+    }
+
+    // send second part of file
+    sendToServer(clientSocket, &freadSecondPart, maxBuffer);
+
+    return 0;
 }
