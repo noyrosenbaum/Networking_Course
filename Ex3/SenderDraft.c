@@ -18,6 +18,7 @@ int maxBuffer = 1024;
 
 char firstPart[(FILE_SIZE / 2)] = {0};
 char secondPart[(FILE_SIZE / 2)] = {0};
+char exitMessage[5] = "Exit";
 
 // Craete new socket
 int createSocket(struct sockaddr_in *serverAddress)
@@ -69,6 +70,33 @@ int sendToServer(int sSocket, void *buffer, int maxBuffer)
     return bytesSend;
 }
 
+int userAnswers()
+{
+    char answer[4];
+    char confirm[4];
+    printf("Send the file again? Write 'yes' for sending again or 'Exit' for finish session.%s\n", answer);
+    scanf("%s", answer);
+    if (strcmp(answer, "yes"))
+    {
+        printf("Running this proccess once again\n");
+        return 1;
+    }
+    else
+    {
+        printf("Confirm exit with 'yes': \n");
+        scanf("%s", confirm);
+        if (strcmp(confirm, "yes"))
+        {
+            printf("Session is over\n");
+            return 0;
+        }
+        else{
+            //A chance for the user to change his mind
+            userAnswers();
+        }
+    }
+}
+
 int main()
 {
     // Create Client socket
@@ -94,34 +122,55 @@ int main()
     int freadFirstPart = fread(firstPart, 1, sizeof(firstPart), message);
     int freadSecondPart = fread(secondPart, 1, sizeof(secondPart), message);
 
-    // send the first part of file
-    sendToServer(clientSocket, &freadFirstPart, maxBuffer);
-
-    // check authentication from server
-    char authentication[] = "10000010111111";
-    char bufferReply[BUFFER_SIZE] = {'\0'};
-    int answer = recv(clientSocket, bufferReply, BUFFER_SIZE, 0);
-    if (strcmp(bufferReply, authentication))
+    // while the answer is yes, run this while loop
+    while (1)
     {
-        printf("Authentication Approved\n");
-    }
-    else
-    {
-        printf("Authentication is not Approved\n");
-    }
+        // send the first part of file
+        sendToServer(clientSocket, &freadFirstPart, maxBuffer);
 
-    // change to reno algorithm
-    printf("Change to reno method\n");
-    char BUF[BUFFER_SIZE];
-    strcpy(BUF, "reno");
-    if (setsockopt(clientSocket, IPPROTO_TCP, TCP_CONGESTION, BUF, sizeof(BUF)) != 0)
-    {
-        perror("setsockopt");
-        return -1;
-    }
+        // check authentication from server
+        char authentication[] = "10000010111111";
+        char bufferReply[BUFFER_SIZE] = {'\0'};
+        int answer = recv(clientSocket, bufferReply, BUFFER_SIZE, 0);
+        if (strcmp(bufferReply, authentication))
+        {
+            printf("Authentication Approved\n");
+        }
+        else
+        {
+            printf("Authentication is not approved\n");
+        }
 
-    // send second part of file
-    sendToServer(clientSocket, &freadSecondPart, maxBuffer);
+        // change to reno algorithm
+        printf("Change to reno method\n");
+        char BUF[BUFFER_SIZE];
+        strcpy(BUF, "reno");
+        if (setsockopt(clientSocket, IPPROTO_TCP, TCP_CONGESTION, BUF, sizeof(BUF)) != 0)
+        {
+            perror("setsockopt");
+            return -1;
+        }
+
+        // send second part of file
+        sendToServer(clientSocket, &freadSecondPart, maxBuffer);
+        // sending again? yes: while comtinues, no: gets out of while loop
+        userAnswers();
+        // change algorithm if user's answer is yes and sends file once again
+        printf("Change to cubic method\n");
+        char BUF[BUFFER_SIZE];
+        strcpy(BUF, "cubic");
+        if (setsockopt(clientSocket, IPPROTO_TCP, TCP_CONGESTION, BUF, sizeof(BUF)) != 0)
+        {
+            perror("setsockopt");
+            return -1;
+        }
+    }
+    // close file
+    fclose(message);
+    //exit message to reciever
+    sendToServer(clientSocket, &exitMessage, maxBuffer);
+    // close socket
+    close(clientSocket);
 
     return 0;
 }
