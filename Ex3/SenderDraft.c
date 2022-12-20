@@ -41,6 +41,7 @@ int createSocket(struct sockaddr_in *serverAddress)
 
 int main()
 {
+    //Create Client socket
     int clientSocket;
     struct sockaddr_in serverAddress;
     clientSocket = createSocket(&serverAddress);
