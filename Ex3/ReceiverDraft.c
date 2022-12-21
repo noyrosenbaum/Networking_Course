@@ -1,14 +1,6 @@
 // Linux and other UNIXes
-#include <stdio.h>
-#include <errno.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
+#include <callFunction.h>
+
 
 #define SERVER_PORT 5060 // The port that the server listens
 #define BUFFER_SIZE 1024

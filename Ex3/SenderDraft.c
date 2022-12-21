@@ -1,13 +1,4 @@
-#include <arpa/inet.h>
-#include <errno.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
+#include <callFunction.h>
 
 #define SERVER_PORT 5060
 #define SERVER_IP_ADDRESS "127.0.0.1"
