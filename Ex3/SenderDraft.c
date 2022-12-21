@@ -17,10 +17,11 @@
 #define CHUNK 1024 // Read 1024 bytes at a time
 #define BUFFER_SIZE 1024
 #define FILE_SIZE 1060424
-int maxBuffer = 1024;
 
-char firstPart[(FILE_SIZE / 2)] = {0};
-char secondPart[(FILE_SIZE / 2)] = {0};
+char buffer[BUFFER_SIZE];
+
+// char firstPart[(FILE_SIZE / 2)] = {0};
+// char secondPart[(FILE_SIZE / 2)] = {0};
 char exitMessage[5] = "Exit";
 
 // Craete new socket
@@ -122,23 +123,31 @@ int main()
     printf("connected to server\n");
 
     //  Read 1MB file and sent it to Receiver
-    FILE *message;
-    message = fopen("test.txt", "r");
-    int freadFirstPart = fread(firstPart, 1, sizeof(firstPart), message);
-    int freadSecondPart = fread(secondPart, 1, sizeof(secondPart), message);
+    FILE *pFile = fopen("test.txt", "r");
+    // Move file pointer to the middle of the file
+    fseek(pFile, BUFFER_SIZE / 2, SEEK_SET);
+    // get half file size - number of bytes
+    long firstFileSize = ftell(pFile);
+    // read 1st part to a buffer
+    int freadFirstPart = fread(buffer, 1, sizeof(firstFileSize), pFile);
+    //Move file's pointer to end of file
+    fseek(pFile, 0, SEEK_END);
+    //get current position of pointer
+    long secondFileSize = ftell(pFile);
+     // read 2nd part to a buffer
+    int freadSecondPart = fread(buffer, 1, sizeof(secondFileSize),pFile);
 
     // while the answer is yes, run this while loop
     while (1)
     {
         // send the first part of file
-        
-        sendToServer(clientSocket, &freadFirstPart, (FILE_SIZE/2));
+        sendToServer(clientSocket, buffer, freadFirstPart);
 
         // check authentication from server
         char authentication[] = "10000010111111";
         char bufferReply[BUFFER_SIZE] = {'\0'};
         int answer = recv(clientSocket, bufferReply, BUFFER_SIZE, 0);
-        if (!strcmp(bufferReply, authentication))
+        if (strcmp(bufferReply, authentication))
         {
             printf("Authentication Approved\n");
         }
@@ -158,7 +167,7 @@ int main()
 
         // send second part of file
         printf("Reach to before send sec part\n");
-        sendToServer(clientSocket, &freadSecondPart, (FILE_SIZE));
+        sendToServer(clientSocket, buffer, freadSecondPart);
         printf("Sent the second part of the file\n");
         // sending again? yes: while comtinues, no: gets out of while loop
         userAnswers();
@@ -172,9 +181,9 @@ int main()
         }
     }
     // close file
-    fclose(message);
+    fclose(pFile);
     // exit message to reciever
-    sendToServer(clientSocket, &exitMessage, maxBuffer);
+    sendToServer(clientSocket, &exitMessage, BUFFER_SIZE);
     // close socket
     close(clientSocket);
 
