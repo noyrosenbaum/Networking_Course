@@ -19,6 +19,7 @@
 #define FILE_SIZE 1060424
 
 char buffer[BUFFER_SIZE];
+int i = 0;
 
 // char firstPart[(FILE_SIZE / 2)] = {0};
 // char secondPart[(FILE_SIZE / 2)] = {0};
@@ -90,7 +91,7 @@ int userAnswers()
     {
         printf("Confirm exit with 'yes': \n");
         scanf("%s", confirm);
-        if (!strcmp(confirm, "yes"))
+        if (strcmp(confirm, "yes"))
         {
             printf("Session is over\n");
             return 0;
@@ -124,53 +125,67 @@ int main()
 
     //  Read 1MB file and sent it to Receiver
     FILE *pFile = fopen("test.txt", "r");
-    // Move file pointer to the middle of the file
-    fseek(pFile, BUFFER_SIZE / 2, SEEK_SET);
-    // get half file size - number of bytes
-    long firstFileSize = ftell(pFile);
-    // read 1st part to a buffer
-    int freadFirstPart = fread(buffer, 1, sizeof(firstFileSize), pFile);
-    //Move file's pointer to end of file
-    fseek(pFile, 0, SEEK_END);
-    //get current position of pointer
-    long secondFileSize = ftell(pFile);
-     // read 2nd part to a buffer
-    int freadSecondPart = fread(buffer, 1, sizeof(secondFileSize),pFile);
+    // Move file's pointer to end of file
+    long fileSize = fseek(pFile, 0, SEEK_END);
+    long firstPartSize = fileSize / 2;
+    long secondPartSize = fileSize - firstPartSize;
+    // // read 1st part to a buffer
+    // int freadFirstPart = fread(buffer, 1, sizeof(firstPartSize), pFile);
+    // read 2nd part to a buffer
+    int freadSecondPart = fread(buffer, 1, sizeof(secondPartSize), pFile);
 
     // while the answer is yes, run this while loop
     while (1)
     {
-        // send the first part of file
-        sendToServer(clientSocket, buffer, freadFirstPart);
-
-        // check authentication from server
-        char authentication[] = "10000010111111";
-        char bufferReply[BUFFER_SIZE] = {'\0'};
-        int answer = recv(clientSocket, bufferReply, BUFFER_SIZE, 0);
-        if (strcmp(bufferReply, authentication))
+        while (++i < 5)
         {
-            printf("Authentication Approved\n");
+            // send the first part of file
+            // read 1st part to a buffer
+            int freadFirstPart = fread(buffer, 1, sizeof(firstPartSize), pFile);
+            sendToServer(clientSocket, buffer, freadFirstPart);
+
+            // check authentication from server
+            char authentication[] = "10000010111111";
+            char bufferReply[BUFFER_SIZE] = {'\0'};
+            int answer = recv(clientSocket, bufferReply, BUFFER_SIZE, 0);
+            if (strcmp(bufferReply, authentication))
+            {
+                printf("Authentication Approved\n");
+            }
+            else
+            {
+                printf("Authentication is not approved\n");
+            }
+
+            // change to reno algorithm
+            printf("Change to reno method\n");
+            char CCReno[6] = "reno";
+            if (setsockopt(clientSocket, IPPROTO_TCP, TCP_CONGESTION, CCReno, sizeof(CCReno)) != 0)
+            {
+                perror("setsockopt");
+                return -1;
+            }
+            memset(buffer, 0, sizeof(*buffer));
+            // send second part of file
+            printf("Reach to before send sec part\n");
+
+            // read 2nd part to a buffer
+            int freadSecondPart = fread(buffer, 1, sizeof(secondPartSize), pFile);
+            // WHY DOES IT SENDS ZERO?!?!?!?!?!?!?!?!
+            sendToServer(clientSocket, buffer, freadSecondPart);
+            printf("Sent the second part of the file\n");
+        }
+
+        // sending again? yes: while comtinues, no: gets out of while loop
+        int userAnswer = userAnswers();
+        if (userAnswer == 1)
+        {
+            return 1;
         }
         else
         {
-            printf("Authentication is not approved\n");
+            return 0;
         }
-
-        // change to reno algorithm
-        printf("Change to reno method\n");
-        char CCReno[6] = "reno";
-        if (setsockopt(clientSocket, IPPROTO_TCP, TCP_CONGESTION, CCReno, sizeof(CCReno)) != 0)
-        {
-            perror("setsockopt");
-            return -1;
-        }
-
-        // send second part of file
-        printf("Reach to before send sec part\n");
-        sendToServer(clientSocket, buffer, freadSecondPart);
-        printf("Sent the second part of the file\n");
-        // sending again? yes: while comtinues, no: gets out of while loop
-        userAnswers();
         // change algorithm if user's answer is yes and sends file once again
         printf("Change to cubic method\n");
         char CCCubic[6] = "cubic";

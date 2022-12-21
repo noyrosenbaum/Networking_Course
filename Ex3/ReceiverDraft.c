@@ -154,7 +154,7 @@ int main()
     // measure time
     while (1)
     {
-        while (i++ < 5)
+        while (++i < 5)
         {
             // measure with cubic - default in linux
             gettimeofday(&beginCubic, 0);
