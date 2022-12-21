@@ -50,13 +50,13 @@ int createSocket(struct sockaddr_in *serverAddress)
     serverAddress->sin_port = htons(SERVER_PORT); // network order (makes byte order consistent)
 
     // Bind the socket to the port with any IP at this port
-    int bindResult = bind(listeningSocket, (struct sockaddr *)serverAddress, sizeof(serverAddress));
+    int bindResult = bind(listeningSocket, (struct sockaddr *)serverAddress, sizeof(*serverAddress));
     if (bindResult == -1)
     {
         printf("Bind failed with error code : %d\n", errno);
         // close the socket
         close(listeningSocket);
-        return -1;
+        exit(1);
     }
 
     printf("Bind() success\n");
@@ -64,7 +64,7 @@ int createSocket(struct sockaddr_in *serverAddress)
     // Make the socket listening; actually mother of all client sockets.
     // 500 is a Maximum size of queue connection requests
     // number of concurrent connections
-    int listenResult = listen(listeningSocket, 3);
+    int listenResult = listen(listeningSocket, 1);
     if (listenResult == -1)
     {
         printf("listen() failed with error code : %d\n", errno);
