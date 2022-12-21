@@ -1,6 +1,16 @@
 // Linux and other UNIXes
-#include <callFunction.h>
-
+#include "callFunction.h"
+#include <stdio.h>
+#include <arpa/inet.h>
+#include <errno.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <signal.h>
 
 #define SERVER_PORT 5060 // The port that the server listens
 #define BUFFER_SIZE 1024
@@ -15,36 +25,35 @@ int createSocket(struct sockaddr_in *serverAddress)
     listeningSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); // 0 means default protocol for stream sockets (Equivalently, IPPROTO_TCP)
     if (listeningSocket == -1)
     {
-        printf("Could not create listening socket : %d", errno);
+        printf("Could not create listening socket : %d\n", errno);
         return 1;
     }
 
     // Reuse the address if the server socket on was closed
     // and remains for 45 seconds in TIME-WAIT state till the final removal.
-    //
     int enableReuse = 1;
     int ret = setsockopt(listeningSocket, SOL_SOCKET, SO_REUSEADDR, &enableReuse, sizeof(int));
     if (ret < 0)
     {
-        printf("setsockopt() failed with error code : %d", errno);
+        printf("setsockopt() failed with error code : %d\n", errno);
         return 1;
     }
 
     // "sockaddr_in" is the "derived" from sockaddr structure
     // used for IPv4 communication. For IPv6, use sockaddr_in6
     //
-    struct sockaddr_in serverAddress;
-    memset(&serverAddress, 0, sizeof(serverAddress));
+    // struct sockaddr_in serverAddress;
+    memset(serverAddress, 0, sizeof(*serverAddress));
 
     serverAddress->sin_family = AF_INET;
     serverAddress->sin_addr.s_addr = INADDR_ANY;  // any IP at this port (Address to accept any incoming messages)
     serverAddress->sin_port = htons(SERVER_PORT); // network order (makes byte order consistent)
 
     // Bind the socket to the port with any IP at this port
-    int bindResult = bind(listeningSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
+    int bindResult = bind(listeningSocket, (struct sockaddr *)serverAddress, sizeof(serverAddress));
     if (bindResult == -1)
     {
-        printf("Bind failed with error code : %d", errno);
+        printf("Bind failed with error code : %d\n", errno);
         // close the socket
         close(listeningSocket);
         return -1;
@@ -58,7 +67,7 @@ int createSocket(struct sockaddr_in *serverAddress)
     int listenResult = listen(listeningSocket, 3);
     if (listenResult == -1)
     {
-        printf("listen() failed with error code : %d", errno);
+        printf("listen() failed with error code : %d\n", errno);
         // close the socket
         close(listeningSocket);
         return -1;
@@ -73,12 +82,12 @@ int recvfileChunks(int cSocket, void *buffer, int maxBuffer)
     int bytesReceived = recv(cSocket, buffer, maxBuffer, 0);
     if (bytesReceived == -1)
     {
-        printf("recv failed with error code : %d", errno);
+        printf("recv failed with error code : %d\n", errno);
         close(cSocket);
         return -1;
     }
 
-    printf("Received: %d", buffer);
+    printf("Received: %p\n", buffer);
     return bytesReceived;
 }
 
@@ -88,7 +97,7 @@ int sendToClient(int cSocket, void *buffer, int maxBuffer)
     int bytesSend = send(cSocket, buffer, maxBuffer, 0);
     if (bytesSend == -1)
     {
-        printf("send() failed with error code : %d", errno);
+        printf("send() failed with error code : %d\n", errno);
         close(cSocket);
         return -1;
     }
@@ -126,7 +135,7 @@ int main()
     int clientSocket = accept(serverSocket, (struct sockaddr *)&clientAddress, &clientAddressLen);
     if (clientSocket == -1)
     {
-        printf("listen failed with error code : %d", errno);
+        printf("listen failed with error code : %d\n", errno);
         // close the sockets
         close(serverSocket);
         return -1;
@@ -148,9 +157,9 @@ int main()
         memset(buffer, 0, maxBuffer);
         int bytesRecived = recvfileChunks(clientSocket, &buffer, sizeof(maxBuffer));
         // cubic part
+        gettimeofday(&beginCubic, 0);
         while ((bytesRecived > 0) && sum < (FILE_SIZE / 2))
         {
-            gettimeofday(&beginCubic, 0);
             sum += bytesRecived;
             // bzero(buffer, BUFFER_SIZE); add???????
             if (sum == FILE_SIZE / 2)
@@ -183,9 +192,9 @@ int main()
         }
 
         // measure second part of file with reno algorithm
+        gettimeofday(&beginReno, 0);
         while (sum > (FILE_SIZE / 2))
         {
-            gettimeofday(&beginReno, 0);
             sum += bytesRecived;
             if (sum == FILE_SIZE)
             {
@@ -193,7 +202,7 @@ int main()
                 long secondsReno = endReno.tv_sec - beginReno.tv_sec;
                 long microsecReno = endReno.tv_usec - beginReno.tv_usec;
                 elapsedReno = secondsReno + microsecReno * 1e-6;
-                printf("Time measured for the second part: %f seconds (Reno session)/n", elapsedReno);
+                printf("Time measured for the second part: %f seconds (Reno session)\n", elapsedReno);
             }
             else
             {
@@ -203,7 +212,7 @@ int main()
         // write exit message to quit while loop and print the remain shit
         char bufferReply[BUFFER_SIZE] = {'\0'};
         int exitFromSender = recv(clientSocket, bufferReply, BUFFER_SIZE, 0);
-        if (strcmp(exitFromSender, "Exit"))
+        if (strcmp(bufferReply, "Exit"))
         {
             printf("Average of times: \n");
             return 0;
@@ -213,17 +222,16 @@ int main()
             return 1;
         }
     }
-    //it means we got an exit message
-    //print times
-    //cubic
-    printf("Cubic: %f", elapsedCubic);
-    //reno
-    printf("Reno: %f", elapsedReno);
-    //both
-    printf("Total time: ");
-    //average time
-    //COMPLITE!!!!!!!!!!
-    
+    // it means we got an exit message
+    // print times
+    // cubic
+    printf("Cubic: %f\n", elapsedCubic);
+    // reno
+    printf("Reno: %f\n", elapsedReno);
+    // both
+    printf("Total time: \n");
+    // average time
+    // COMPLITE!!!!!!!!!!
 
     return 0;
 }

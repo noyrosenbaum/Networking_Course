@@ -1,35 +1,17 @@
-#include <stdio.h>
-#include <arpa/inet.h>
-#include <errno.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <signal.h>
+// //Calls for Functions
 
+// //Reciever
 
-//Calls for Functions
+// int createSocket(struct sockaddr_in*);
 
-//Reciever
+// int recvfileChunks(int, void*, int);
 
-int createSocket(struct sockaddr_in*);
+// int sendToClient(int, void*, int);
 
-int recvfileChunks(int, void*, int);
+// //Sender
 
-int sendToClient(int, void*, int);
+// int createSocket(struct sockaddr_in *);
 
-//Sender
+// int sendToServer(int, void*, int);
 
-int createSocket(struct sockaddr_in*);
-
-int sendToServer(int, void*, int);
-
-int userAnswers();
-
-
-
-
-
+// int userAnswers();

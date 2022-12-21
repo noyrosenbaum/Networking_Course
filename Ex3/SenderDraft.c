@@ -1,4 +1,15 @@
-#include <callFunction.h>
+#include "callFunction.h"
+#include <stdio.h>
+#include <arpa/inet.h>
+#include <errno.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <signal.h>
 
 #define SERVER_PORT 5060
 #define SERVER_IP_ADDRESS "127.0.0.1"
@@ -17,7 +28,7 @@ int createSocket(struct sockaddr_in *serverAddress)
     int client_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (client_sock == -1)
     {
-        printf("Could not create socket : %d", errno);
+        printf("Could not create socket : %d\n", errno);
         return -1;
     }
 
@@ -29,7 +40,7 @@ int createSocket(struct sockaddr_in *serverAddress)
     // e.g. 127.0.0.1 => 0x7f000001 => 01111111.00000000.00000000.00000001 => 2130706433
     if (rval <= 0)
     {
-        printf("inet_pton() failed");
+        printf("inet_pton() failed\n");
         return -1;
     }
     printf("Sender's socket successfully created\n");
@@ -42,7 +53,7 @@ int sendToServer(int sSocket, void *buffer, int maxBuffer)
     int bytesSend = send(sSocket, buffer, maxBuffer, 0);
     if (bytesSend == -1)
     {
-        printf("send() failed with error code : %d", errno);
+        printf("send() failed with error code : %d\n", errno);
         close(sSocket);
         return -1;
     }
@@ -81,8 +92,9 @@ int userAnswers()
             printf("Session is over\n");
             return 0;
         }
-        else{
-            //A chance for the user to change his mind
+        else
+        {
+            // A chance for the user to change his mind
             userAnswers();
         }
     }
@@ -99,7 +111,7 @@ int main()
     int connectResult = connect(clientSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
     if (connectResult == -1)
     {
-        printf("connect() failed with error code : %d", errno);
+        printf("connect() failed with error code : %d\n", errno);
         // cleanup the socket;
         close(clientSocket);
         return -1;
@@ -134,9 +146,9 @@ int main()
 
         // change to reno algorithm
         printf("Change to reno method\n");
-        char BUF[BUFFER_SIZE];
-        strcpy(BUF, "reno");
-        if (setsockopt(clientSocket, IPPROTO_TCP, TCP_CONGESTION, BUF, sizeof(BUF)) != 0)
+        char CCReno[BUFFER_SIZE];
+        strcpy(CCReno, "reno");
+        if (setsockopt(clientSocket, IPPROTO_TCP, TCP_CONGESTION, CCReno, sizeof(CCReno)) != 0)
         {
             perror("setsockopt");
             return -1;
@@ -148,9 +160,9 @@ int main()
         userAnswers();
         // change algorithm if user's answer is yes and sends file once again
         printf("Change to cubic method\n");
-        char BUF[BUFFER_SIZE];
-        strcpy(BUF, "cubic");
-        if (setsockopt(clientSocket, IPPROTO_TCP, TCP_CONGESTION, BUF, sizeof(BUF)) != 0)
+        char CCCubic[BUFFER_SIZE];
+        strcpy(CCCubic, "cubic");
+        if (setsockopt(clientSocket, IPPROTO_TCP, TCP_CONGESTION, CCCubic, sizeof(CCCubic)) != 0)
         {
             perror("setsockopt");
             return -1;
@@ -158,7 +170,7 @@ int main()
     }
     // close file
     fclose(message);
-    //exit message to reciever
+    // exit message to reciever
     sendToServer(clientSocket, &exitMessage, maxBuffer);
     // close socket
     close(clientSocket);
