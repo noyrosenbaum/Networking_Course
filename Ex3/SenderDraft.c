@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/time.h>
 
 #define SERVER_PORT 5060
 #define SERVER_IP_ADDRESS "127.0.0.1"
@@ -76,8 +77,8 @@ int userAnswers()
 {
     char answer[4];
     char confirm[4];
-    printf("Send the file again? Write 'yes' for sending again or 'Exit' for finish session.%s\n", answer);
     scanf("%s", answer);
+    printf("Send the file again? Write 'yes' for sending again or 'Exit' for finish session.%s\n", answer);
     if (strcmp(answer, "yes"))
     {
         printf("Running this proccess once again\n");
@@ -146,8 +147,7 @@ int main()
 
         // change to reno algorithm
         printf("Change to reno method\n");
-        char CCReno[BUFFER_SIZE];
-        strcpy(CCReno, "reno");
+        char CCReno[6] = "reno";
         if (setsockopt(clientSocket, IPPROTO_TCP, TCP_CONGESTION, CCReno, sizeof(CCReno)) != 0)
         {
             perror("setsockopt");
@@ -155,13 +155,14 @@ int main()
         }
 
         // send second part of file
+        printf("Reach to before send sec part\n");
         sendToServer(clientSocket, &freadSecondPart, maxBuffer);
+        printf("Reach to after send sec part\n");
         // sending again? yes: while comtinues, no: gets out of while loop
         userAnswers();
         // change algorithm if user's answer is yes and sends file once again
         printf("Change to cubic method\n");
-        char CCCubic[BUFFER_SIZE];
-        strcpy(CCCubic, "cubic");
+        char CCCubic[6] = "cubic";
         if (setsockopt(clientSocket, IPPROTO_TCP, TCP_CONGESTION, CCCubic, sizeof(CCCubic)) != 0)
         {
             perror("setsockopt");

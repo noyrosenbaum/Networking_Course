@@ -11,6 +11,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/time.h>
 
 #define SERVER_PORT 5060 // The port that the server listens
 #define BUFFER_SIZE 1024
@@ -157,9 +158,9 @@ int main()
         memset(buffer, 0, maxBuffer);
         int bytesRecived = recvfileChunks(clientSocket, &buffer, sizeof(maxBuffer));
         // cubic part
-        gettimeofday(&beginCubic, 0);
         while ((bytesRecived > 0) && sum < (FILE_SIZE / 2))
         {
+            gettimeofday(&beginCubic, 0);
             sum += bytesRecived;
             // bzero(buffer, BUFFER_SIZE); add???????
             if (sum == FILE_SIZE / 2)
@@ -170,11 +171,13 @@ int main()
                 elapsedCubic = seconds + microsec * 1e-6;
                 printf("Time measured for the first part: %f seconds (Cubic session)\n", elapsedCubic);
             }
-            else
-            {
-                printf("First part of file is not fully sent\n");
-            }
         }
+
+        if(sum != (FILE_SIZE / 2))
+        {
+            printf("First part of file is not fully sent\n");
+        }
+        
         // Send authentication massage to client
         // authentication maessage - XOR last 4 digits of IDs
         printf("Sending authentication message to client\n");
@@ -183,18 +186,18 @@ int main()
 
         // change algorithm to reno
         printf("Change to Reno method\n");
-        char BUF[BUFFER_SIZE];
-        strcpy(BUF, "reno");
-        if (setsockopt(serverSocket, IPPROTO_TCP, TCP_CONGESTION, BUF, sizeof(BUF)) != 0)
+        char CCReno[6] = "reno";
+        if (setsockopt(serverSocket, IPPROTO_TCP, TCP_CONGESTION, CCReno, sizeof(CCReno)) != 0)
         {
-            perror("setsockopt");
+            printf("Reno transfer failed : %d\n", errno);
             return -1;
         }
 
         // measure second part of file with reno algorithm
-        gettimeofday(&beginReno, 0);
+
         while (sum > (FILE_SIZE / 2))
         {
+            gettimeofday(&beginReno, 0);
             sum += bytesRecived;
             if (sum == FILE_SIZE)
             {
@@ -204,11 +207,14 @@ int main()
                 elapsedReno = secondsReno + microsecReno * 1e-6;
                 printf("Time measured for the second part: %f seconds (Reno session)\n", elapsedReno);
             }
-            else
-            {
-                printf("Second part of file is not fully sent\n");
-            }
         }
+
+        if(sum != FILE_SIZE)
+        {
+            printf("Second part of file is not fully sent\n");
+        }
+        
+
         // write exit message to quit while loop and print the remain shit
         char bufferReply[BUFFER_SIZE] = {'\0'};
         int exitFromSender = recv(clientSocket, bufferReply, BUFFER_SIZE, 0);
