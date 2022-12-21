@@ -88,7 +88,7 @@ int recvfileChunks(int cSocket, void *buffer, int maxBuffer)
         return -1;
     }
 
-    printf("Received: %p\n", buffer);
+    printf("Received chunks: %d\n", bytesReceived);
     return bytesReceived;
 }
 
@@ -155,7 +155,7 @@ int main()
     {
         // receive data chucks from client
         char buffer[maxBuffer];
-        memset(buffer, 0, maxBuffer);
+        // memset(buffer, 0, maxBuffer);
         int bytesRecived = recvfileChunks(clientSocket, &buffer, sizeof(maxBuffer));
         // cubic part
         while ((bytesRecived > 0) && sum < (FILE_SIZE / 2))
@@ -194,7 +194,6 @@ int main()
         }
 
         // measure second part of file with reno algorithm
-
         while (sum > (FILE_SIZE / 2))
         {
             gettimeofday(&beginReno, 0);

@@ -77,9 +77,10 @@ int userAnswers()
 {
     char answer[4];
     char confirm[4];
+    printf("Send the file again? Write 'yes' for sending again or 'Exit' for finish session.\n");
     scanf("%s", answer);
-    printf("Send the file again? Write 'yes' for sending again or 'Exit' for finish session.%s\n", answer);
-    if (strcmp(answer, "yes"))
+    printf("Your answer is: %s\n", answer);
+    if (!strcmp(answer, "yes"))
     {
         printf("Running this proccess once again\n");
         return 1;
@@ -88,7 +89,7 @@ int userAnswers()
     {
         printf("Confirm exit with 'yes': \n");
         scanf("%s", confirm);
-        if (strcmp(confirm, "yes"))
+        if (!strcmp(confirm, "yes"))
         {
             printf("Session is over\n");
             return 0;
@@ -136,7 +137,7 @@ int main()
         char authentication[] = "10000010111111";
         char bufferReply[BUFFER_SIZE] = {'\0'};
         int answer = recv(clientSocket, bufferReply, BUFFER_SIZE, 0);
-        if (strcmp(bufferReply, authentication))
+        if (!strcmp(bufferReply, authentication))
         {
             printf("Authentication Approved\n");
         }
@@ -157,7 +158,7 @@ int main()
         // send second part of file
         printf("Reach to before send sec part\n");
         sendToServer(clientSocket, &freadSecondPart, maxBuffer);
-        printf("Reach to after send sec part\n");
+        printf("Sent the second part of the file\n");
         // sending again? yes: while comtinues, no: gets out of while loop
         userAnswers();
         // change algorithm if user's answer is yes and sends file once again
