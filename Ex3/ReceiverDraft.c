@@ -156,11 +156,11 @@ int main()
         // receive data chucks from client
         char buffer[maxBuffer];
         // memset(buffer, 0, maxBuffer);
+        gettimeofday(&beginCubic, 0);
         int bytesRecived = recvfileChunks(clientSocket, &buffer, sizeof(maxBuffer));
         // cubic part
         while ((bytesRecived > 0) && sum < (FILE_SIZE / 2))
         {
-            gettimeofday(&beginCubic, 0);
             sum += bytesRecived;
             // bzero(buffer, BUFFER_SIZE); add???????
             if (sum == FILE_SIZE / 2)

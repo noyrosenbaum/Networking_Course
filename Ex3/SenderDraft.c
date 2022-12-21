@@ -131,6 +131,7 @@ int main()
     while (1)
     {
         // send the first part of file
+        
         sendToServer(clientSocket, &freadFirstPart, maxBuffer);
 
         // check authentication from server
