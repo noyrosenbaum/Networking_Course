@@ -132,7 +132,7 @@ int main()
     {
         // send the first part of file
         
-        sendToServer(clientSocket, &freadFirstPart, maxBuffer);
+        sendToServer(clientSocket, &freadFirstPart, (FILE_SIZE/2));
 
         // check authentication from server
         char authentication[] = "10000010111111";
@@ -158,7 +158,7 @@ int main()
 
         // send second part of file
         printf("Reach to before send sec part\n");
-        sendToServer(clientSocket, &freadSecondPart, maxBuffer);
+        sendToServer(clientSocket, &freadSecondPart, (FILE_SIZE));
         printf("Sent the second part of the file\n");
         // sending again? yes: while comtinues, no: gets out of while loop
         userAnswers();

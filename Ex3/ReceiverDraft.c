@@ -155,7 +155,6 @@ int main()
     {
         // receive data chucks from client
         char buffer[maxBuffer];
-        // memset(buffer, 0, maxBuffer);
         gettimeofday(&beginCubic, 0);
         int bytesRecived = recvfileChunks(clientSocket, &buffer, sizeof(maxBuffer));
         // cubic part
@@ -240,3 +239,82 @@ int main()
 
     return 0;
 }
+
+//backup!!!!!!!!!
+// // measure time
+//     while (1)
+//     {
+//         // receive data chucks from client
+//         char buffer[maxBuffer];
+//         // memset(buffer, 0, maxBuffer);
+//         gettimeofday(&beginCubic, 0);
+//         int bytesRecived = recvfileChunks(clientSocket, &buffer, sizeof(maxBuffer));
+//         // cubic part
+//         while ((bytesRecived > 0) && sum < (FILE_SIZE / 2))
+//         {
+//             sum += bytesRecived;
+//             // bzero(buffer, BUFFER_SIZE); add???????
+//             if (sum == FILE_SIZE / 2)
+//             {
+//                 gettimeofday(&endCubic, 0);
+//                 long seconds = endCubic.tv_sec - beginCubic.tv_sec;
+//                 long microsec = endCubic.tv_usec - beginCubic.tv_usec;
+//                 elapsedCubic = seconds + microsec * 1e-6;
+//                 printf("Time measured for the first part: %f seconds (Cubic session)\n", elapsedCubic);
+//             }
+//         }
+
+//         if(sum != (FILE_SIZE / 2))
+//         {
+//             printf("First part of file is not fully sent\n");
+//         }
+        
+//         // Send authentication massage to client
+//         // authentication maessage - XOR last 4 digits of IDs
+//         printf("Sending authentication message to client\n");
+//         char authentication[] = "10000010111111";
+//         sendToClient(clientSocket, &authentication, sizeof(authentication));
+
+//         // change algorithm to reno
+//         printf("Change to Reno method\n");
+//         char CCReno[6] = "reno";
+//         if (setsockopt(serverSocket, IPPROTO_TCP, TCP_CONGESTION, CCReno, sizeof(CCReno)) != 0)
+//         {
+//             printf("Reno transfer failed : %d\n", errno);
+//             return -1;
+//         }
+
+//         // measure second part of file with reno algorithm
+//         while (sum > (FILE_SIZE / 2))
+//         {
+//             gettimeofday(&beginReno, 0);
+//             sum += bytesRecived;
+//             if (sum == FILE_SIZE)
+//             {
+//                 gettimeofday(&endReno, 0);
+//                 long secondsReno = endReno.tv_sec - beginReno.tv_sec;
+//                 long microsecReno = endReno.tv_usec - beginReno.tv_usec;
+//                 elapsedReno = secondsReno + microsecReno * 1e-6;
+//                 printf("Time measured for the second part: %f seconds (Reno session)\n", elapsedReno);
+//             }
+//         }
+
+//         if(sum != FILE_SIZE)
+//         {
+//             printf("Second part of file is not fully sent\n");
+//         }
+        
+
+//         // write exit message to quit while loop and print the remain shit
+//         char bufferReply[BUFFER_SIZE] = {'\0'};
+//         int exitFromSender = recv(clientSocket, bufferReply, BUFFER_SIZE, 0);
+//         if (strcmp(bufferReply, "Exit"))
+//         {
+//             printf("Average of times: \n");
+//             return 0;
+//         }
+//         else
+//         {
+//             return 1;
+//         }
+//     }
