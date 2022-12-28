@@ -49,6 +49,8 @@ int main()
     struct icmphdr icmp;
     // ping message
     char msg[PACKETSIZE - sizeof(struct icmphdr)];
+    //sequence number
+    unsigned short seq = 0;
 
     // Create raw socket
     if (rawsocket = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP) < 0)
@@ -69,6 +71,10 @@ int main()
 
     // ICMP header fields
     icmp.type = ICMP_ECHO; //ping massage definition
+    icmp.code = 0;
+    icmp.checksum = 0; 
+    icmp.un.echo.id = getpid(); 
+    icmp.un.echo.sequence = seq++;
 
     return 0;
 }
