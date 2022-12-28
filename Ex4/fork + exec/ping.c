@@ -46,7 +46,7 @@ int main()
     struct sockaddr_in dest_addr;
 
     // structs that contains the properties of ICMP protocol
-    struct icmphdr hdr;
+    struct icmphdr icmp;
     // ping message
     char msg[PACKETSIZE - sizeof(struct icmphdr)];
 
@@ -60,6 +60,7 @@ int main()
     // Set destination address - port is irrelevant
     memset(&dest_addr, 0, sizeof(dest_addr));
     dest_addr.sin_family = AF_INET; // IPv4
+    dest_addr.sin_addr.s_addr = inet_addr(DESTINATION_IP);
     // if (inet_pton(AF_INET, DESTINATION_IP, &dest_addr.sin_addr) <= 0)
     // {
     //     printf("inet_pton() failed with error:  %d\n", errno);
@@ -67,6 +68,7 @@ int main()
     // }
 
     // ICMP header fields
+    icmp.type = ICMP_ECHO; //ping massage definition
 
     return 0;
 }
