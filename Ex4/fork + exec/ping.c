@@ -16,17 +16,19 @@
 #include <netdb.h>
 #include <sys/wait.h>
 
-#define PACKETSIZE 64 //size of data payload 
+#define PACKETSIZE 64 // size of data payload
 #define SOURCE_IP "127.0.0.1"
 #define DESTINATION_IP "127.0.0.1"
 
 struct packet
 {
-    struct icmphdr hdr;
+    // structs that contains the properties of ICMP protocol
+    struct icmphdr icmp;
+    // header's size
     char msg[PACKETSIZE - sizeof(struct icmphdr)];
 };
 
-//Calculate the checksum of the ICMP header and dataF
+// Calculate the checksum of the ICMP header and dataF
 unsigned short checksum(void *b, int len)
 {
     unsigned short *buf = b;
@@ -48,6 +50,15 @@ unsigned short checksum(void *b, int len)
 
 int main()
 {
+    int rawsocket;
+    struct sockaddr_in dest_addr;
+
+    // Create raw socket
+    if (rawsocket = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP) < 0)
+    {
+        printf("socket() failed with error:  %d\n", errno);
+        exit(1);
+    }
+
     return 0;
 }
-
