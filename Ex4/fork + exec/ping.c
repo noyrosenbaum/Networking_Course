@@ -76,5 +76,8 @@ int main()
     icmp.un.echo.id = getpid(); 
     icmp.un.echo.sequence = seq++;
 
+    //Calculate checksum of ICMP header and data
+    icmp.checksum = checksum((unsigned short*)&icmp, sizeof(icmp) + PACKETSIZE);
+
     return 0;
 }
