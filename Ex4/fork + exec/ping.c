@@ -16,23 +16,15 @@
 #include <netdb.h>
 #include <sys/wait.h>
 
-#define PACKETSIZE 64
+#define PACKETSIZE 64 //size of data payload 
 #define SOURCE_IP "127.0.0.1"
 #define DESTINATION_IP "127.0.0.1"
+
 struct packet
 {
     struct icmphdr hdr;
     char msg[PACKETSIZE - sizeof(struct icmphdr)];
 };
-
-// int pid = -1;
-// int loops = 25;
-// struct protoent *proto = NULL;
-
-int main()
-{
-    return 0;
-}
 
 unsigned short checksum(void *b, int len)
 {
@@ -48,3 +40,13 @@ unsigned short checksum(void *b, int len)
     result = ~sum;
     return result;
 }
+
+// int pid = -1;
+// int loops = 25;
+// struct protoent *proto = NULL;
+
+int main()
+{
+    return 0;
+}
+
