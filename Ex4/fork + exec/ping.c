@@ -26,6 +26,7 @@ struct packet
     char msg[PACKETSIZE - sizeof(struct icmphdr)];
 };
 
+//Calculate the checksum of the ICMP header and dataF
 unsigned short checksum(void *b, int len)
 {
     unsigned short *buf = b;
