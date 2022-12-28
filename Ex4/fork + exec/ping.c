@@ -20,14 +20,6 @@
 #define SOURCE_IP "127.0.0.1"
 #define DESTINATION_IP "127.0.0.1"
 
-struct packet
-{
-    // structs that contains the properties of ICMP protocol
-    struct icmphdr icmp;
-    // header's size
-    char msg[PACKETSIZE - sizeof(struct icmphdr)];
-};
-
 // Calculate the checksum of the ICMP header and dataF
 unsigned short checksum(void *b, int len)
 {
@@ -53,6 +45,11 @@ int main()
     int rawsocket;
     struct sockaddr_in dest_addr;
 
+    // structs that contains the properties of ICMP protocol
+    struct icmphdr hdr;
+    // ping message
+    char msg[PACKETSIZE - sizeof(struct icmphdr)];
+
     // Create raw socket
     if (rawsocket = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP) < 0)
     {
@@ -63,11 +60,13 @@ int main()
     // Set destination address - port is irrelevant
     memset(&dest_addr, 0, sizeof(dest_addr));
     dest_addr.sin_family = AF_INET; // IPv4
-    if (inet_pton(AF_INET, DESTINATION_IP, &dest_addr.sin_addr) <= 0)
-    {
-        printf("inet_pton() failed with error:  %d\n", errno);
-        exit(1);
-    }
+    // if (inet_pton(AF_INET, DESTINATION_IP, &dest_addr.sin_addr) <= 0)
+    // {
+    //     printf("inet_pton() failed with error:  %d\n", errno);
+    //     exit(1);
+    // }
+
+    // ICMP header fields
 
     return 0;
 }
