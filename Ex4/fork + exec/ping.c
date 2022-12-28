@@ -49,7 +49,7 @@ int main()
     struct icmphdr icmp;
     // ping message
     char msg[PACKETSIZE - sizeof(struct icmphdr)];
-    //sequence number
+    // sequence number
     unsigned short seq = 0;
 
     // Create raw socket
@@ -70,14 +70,27 @@ int main()
     // }
 
     // ICMP header fields
-    icmp.type = ICMP_ECHO; //ping massage definition
+    icmp.type = ICMP_ECHO; // ping massage definition
     icmp.code = 0;
-    icmp.checksum = 0; 
-    icmp.un.echo.id = getpid(); 
+    icmp.checksum = 0;
+    icmp.un.echo.id = getpid();
     icmp.un.echo.sequence = seq++;
 
-    //Calculate checksum of ICMP header and data
-    icmp.checksum = checksum((unsigned short*)&icmp, sizeof(icmp) + PACKETSIZE);
+    // Calculate checksum of ICMP header and data
+    icmp.checksum = checksum((unsigned short *)&icmp, sizeof(icmp) + PACKETSIZE);
+
+    // Send ICMP Echo Request massage infinitelly
+    // Send the packet using sendto() for sending datagrams.
+    while (1)
+    {
+        int bytes_sent = sendto(rawsocket, &icmp, sizeof(icmp) + PACKETSIZE, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+        if (bytes_sent == -1)
+        {
+            fprintf(stderr, "sendto() failed with error: %d", errno);
+            return -1;
+        }
+        printf("64 bytes from %s: icmp_seq= %d, ttl=%d , time=: %d \n", DESTINATION_IP, seq, *******); //insert time parameter
+    }
 
     return 0;
 }
