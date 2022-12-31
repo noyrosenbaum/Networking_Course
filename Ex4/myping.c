@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
 
     // Sequence Number (16 bits): starts at 0
     icmphdr.icmp_seq = 0;
-
+    
     // ICMP header checksum (16 bits): set to 0 not to include into checksum calculation
     icmphdr.icmp_cksum = 0;
 
@@ -165,6 +165,7 @@ int main(int argc, char *argv[])
     memcpy(reply, packet + ICMP_HDRLEN + IP4_HDRLEN, datalen);
     // printf("ICMP reply: %s \n", reply);
 
+    printf("icmp_seq=%d\n", icmphdr.icmp_seq++);
     printf("ttl=%d\n", ttl);
 
     float milliseconds = (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec) / 1000.0f;
