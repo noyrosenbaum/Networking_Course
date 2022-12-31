@@ -46,12 +46,19 @@ unsigned short calculate_checksum(unsigned short *paddress, int len);
 //  still be sent, but do not expect to see ICMP_ECHO_REPLY in most such cases
 //  since anti-spoofing is wide-spread.
 
-#define SOURCE_IP "10.0.2.15"
+#define SOURCE_IP "127.0.0.1"
 // i.e the gateway or ping to google.com for their ip-address
-#define DESTINATION_IP "8.8.8.8"
+// #define DESTINATION_IP "8.8.8.8"
 
-int main()
+int main(int argc, char *argv[])
 {
+    if (argc != 1)
+    {
+        printf("Destination IP parameter is undecleared%d\n", errno);
+        exit(1);
+    }
+
+    char *destinationIP = argv[1];
 
     struct icmp icmphdr; // ICMP-header
     char data[IP_MAXPACKET] = "This is the ping.\n";
@@ -98,7 +105,7 @@ int main()
 
     // The port is irrelant for Networking and therefore was zeroed.
     // dest_in.sin_addr.s_addr = iphdr.ip_dst.s_addr;
-    dest_in.sin_addr.s_addr = inet_addr(DESTINATION_IP);
+    dest_in.sin_addr.s_addr = inet_addr(destinationIP);
     // inet_pton(AF_INET, DESTINATION_IP, &(dest_in.sin_addr.s_addr));
 
     // Create raw socket for IP-RAW (make IP-header by yourself)
