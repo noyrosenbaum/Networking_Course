@@ -23,13 +23,13 @@
 // ICMP header len for echo req
 #define ICMP_HDRLEN 8
 
-//Make socket a global variable
+// Make socket a global variable
 int sock = -1;
 
 // Checksum algo
 unsigned short calculate_checksum(unsigned short *paddress, int len);
 
-// User interrupt hanle
+// User interrupt hanler
 void interrupttHandler()
 {
     printf("User interrupts the proccess, exit gracefully...\n");
@@ -38,8 +38,6 @@ void interrupttHandler()
 }
 
 #define SOURCE_IP "127.0.0.1"
-// i.e the gateway or ping to google.com for their ip-address
-// #define DESTINATION_IP "8.8.8.8"
 
 int main(int argc, char *argv[])
 {
@@ -67,16 +65,19 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    // Recognize a third-party interruption
     signal(SIGINT, interrupttHandler);
     struct icmp icmphdr; // ICMP-header
     char data[IP_MAXPACKET] = "This is the ping.\n";
-
     int datalen = strlen(data) + 1;
+
+    // Sequence Number (16 bits): starts at 0
+    unsigned short seq = icmphdr.icmp_seq;
+    seq = 0;
 
     printf("PING %s: %d data bytes\n", destinationIP, datalen);
 
-    int i = 0;
-    while (i++ < 5)
+    while (1)
     {
 
         //===================
@@ -93,10 +94,6 @@ int main(int argc, char *argv[])
         // It will be copied to the response packet and used to map response to the request sent earlier.
         // Thus, it serves as a Transaction-ID when we need to make "ping"
         icmphdr.icmp_id = 18;
-
-        // Sequence Number (16 bits): starts at 0
-        unsigned short seq = icmphdr.icmp_seq;
-        seq = 0;
 
         // ICMP header checksum (16 bits): set to 0 not to include into checksum calculation
         icmphdr.icmp_cksum = 0;
