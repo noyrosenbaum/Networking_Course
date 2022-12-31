@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
         int bytes_sent = sendto(sock, packet, ICMP_HDRLEN + datalen, 0, (struct sockaddr *)&dest_in, sizeof(dest_in));
         if (bytes_sent == -1)
         {
-            printf(stderr, "sendto() failed with error: %d\n", errno);
+            fprintf(stderr, "sendto() failed with error: %d\n", errno);
             return -1;
         }
 
