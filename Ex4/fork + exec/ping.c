@@ -1,9 +1,3 @@
-// icmp.cpp
-// Robert Iakobashvili for Ariel uni, license BSD/MIT/Apache
-//
-// Sending ICMP Echo Requests using Raw-sockets.
-//
-
 #include <arpa/inet.h>
 #include <errno.h>
 #include <netinet/in.h>
@@ -116,9 +110,7 @@ int main(int argc, char *argv[])
         dest_in.sin_family = AF_INET;
 
         // The port is irrelant for Networking and therefore was zeroed.
-        // dest_in.sin_addr.s_addr = iphdr.ip_dst.s_addr;
         dest_in.sin_addr.s_addr = inet_addr(destinationIP);
-        // inet_pton(AF_INET, DESTINATION_IP, &(dest_in.sin_addr.s_addr));
 
         struct timeval start, end;
         gettimeofday(&start, 0);
@@ -127,10 +119,9 @@ int main(int argc, char *argv[])
         int bytes_sent = sendto(sock, packet, ICMP_HDRLEN + datalen, 0, (struct sockaddr *)&dest_in, sizeof(dest_in));
         if (bytes_sent == -1)
         {
-            fprintf(stderr, "sendto() failed with error: %d\n", errno);
+            printf(stderr, "sendto() failed with error: %d\n", errno);
             return -1;
         }
-        // printf("REMOVE WHEN SUBMMITING - Successfuly sent one packet : ICMP HEADER : %d bytes, data length : %d , icmp header : %d \n", bytes_sent, datalen, ICMP_HDRLEN);
 
         // Get the ping response
         bzero(packet, IP_MAXPACKET);
@@ -143,11 +134,6 @@ int main(int argc, char *argv[])
                 // Check the IP header
                 struct iphdr *iphdr = (struct iphdr *)packet;
                 struct icmphdr *icmphdr = (struct icmphdr *)(packet + (iphdr->ihl * 4));
-                // printf("%ld bytes from %s\n", bytes_received, inet_ntoa(dest_in.sin_addr));
-                // icmphdr->type
-
-                // printf("Successfuly received one packet with %ld bytes : data length : %d , icmp header : %d , ip header : %d \n", bytes_received, datalen, ICMP_HDRLEN, IP4_HDRLEN);
-
                 break;
             }
         }
@@ -156,13 +142,7 @@ int main(int argc, char *argv[])
 
         char reply[IP_MAXPACKET];
         memcpy(reply, packet + ICMP_HDRLEN + IP4_HDRLEN, datalen);
-        // printf("ICMP reply: %s \n", reply);
-
-        // printf("icmp_seq=%d\n", seq);
-        // printf("ttl=%d\n", ttl);
-
         float milliseconds = (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec) / 1000.0f;
-        // printf("time=%f ms\n", milliseconds);
 
         // Format acceptence massage
         printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%f ms\n", bytes_received, destinationIP, seq, ttl, milliseconds);
@@ -172,7 +152,6 @@ int main(int argc, char *argv[])
 
     // Close the raw socket descriptor.
     close(sock);
-
     return 0;
 }
 
