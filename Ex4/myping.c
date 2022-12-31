@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
             // printf("%ld bytes from %s\n", bytes_received, inet_ntoa(dest_in.sin_addr));
             // icmphdr->type
 
-            printf("Successfuly received one packet with %d bytes : data length : %d , icmp header : %d , ip header : %d \n", bytes_received, datalen, ICMP_HDRLEN, IP4_HDRLEN);
+            printf("Successfuly received one packet with %ld bytes : data length : %d , icmp header : %d , ip header : %d \n", bytes_received, datalen, ICMP_HDRLEN, IP4_HDRLEN);
 
             break;
         }
@@ -164,8 +164,7 @@ int main(int argc, char *argv[])
     // printf("ICMP reply: %s \n", reply);
 
     float milliseconds = (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec) / 1000.0f;
-    unsigned long microseconds = (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec);
-    printf("\nRTT: %f milliseconds (%ld microseconds)\n", milliseconds, microseconds);
+    printf("time=%f ms\n", milliseconds);
 
     // Close the raw socket descriptor.
     close(sock);
