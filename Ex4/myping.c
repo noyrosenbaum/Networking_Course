@@ -117,6 +117,14 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    //Set Time-To-Live (TTL) to 115
+    int ttl = 115;
+    if(setsockopt(sock, IPPROTO_IP, IP_TTL, &ttl, sizeof(int)) < 0)
+    {
+        printf("setsockopt() failed with error %d\n", errno);
+        exit(1);
+    }
+
     struct timeval start, end;
     gettimeofday(&start, 0);
 
