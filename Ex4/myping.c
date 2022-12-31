@@ -17,6 +17,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#define PACKETSIZE 64 // size of data payload
+
 // IPv4 header len without options
 #define IP4_HDRLEN 20
 
@@ -50,6 +52,7 @@ unsigned short calculate_checksum(unsigned short *paddress, int len);
 
 int main()
 {
+
     struct icmp icmphdr; // ICMP-header
     char data[IP_MAXPACKET] = "This is the ping.\n";
 
