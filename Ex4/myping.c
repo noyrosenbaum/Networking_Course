@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     char *destinationIP = argv[1];
 
     struct icmp icmphdr; // ICMP-header
-    char data[IP_MAXPACKET] = "This is the ping.\n";
+    char data[IP_MAXPACKET] = "This is the ping that contains 56 bytes which is sent.\n";
 
     int datalen = strlen(data) + 1;
 
@@ -125,6 +125,8 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+
+    printf("PING %s: %d data bytes\n", destinationIP, datalen);
     struct timeval start, end;
     gettimeofday(&start, 0);
 
@@ -135,7 +137,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "sendto() failed with error: %d", errno);
         return -1;
     }
-    printf("Successfuly sent one packet : ICMP HEADER : %d bytes, data length : %d , icmp header : %d \n", bytes_sent, datalen, ICMP_HDRLEN);
+    printf("REMOVE WHEN SUBMMITING - Successfuly sent one packet : ICMP HEADER : %d bytes, data length : %d , icmp header : %d \n", bytes_sent, datalen, ICMP_HDRLEN);
 
     // Get the ping response
     bzero(packet, IP_MAXPACKET);
@@ -162,6 +164,8 @@ int main(int argc, char *argv[])
     char reply[IP_MAXPACKET];
     memcpy(reply, packet + ICMP_HDRLEN + IP4_HDRLEN, datalen);
     // printf("ICMP reply: %s \n", reply);
+
+    printf("ttl=%d\n", ttl);
 
     float milliseconds = (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec) / 1000.0f;
     printf("time=%f ms\n", milliseconds);
