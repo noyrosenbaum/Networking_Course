@@ -73,7 +73,8 @@ int main(int argc, char *argv[])
     icmphdr.icmp_type = ICMP_ECHO;
 
     // Message Code (8 bits): echo request
-    icmphdr.icmp_code = 0;
+    unsigned short seq = icmphdr.icmp_code;
+    seq = 0;
 
     // Identifier (16 bits): some number to trace the response.
     // It will be copied to the response packet and used to map response to the request sent earlier.
@@ -82,7 +83,7 @@ int main(int argc, char *argv[])
 
     // Sequence Number (16 bits): starts at 0
     icmphdr.icmp_seq = 0;
-    
+
     // ICMP header checksum (16 bits): set to 0 not to include into checksum calculation
     icmphdr.icmp_cksum = 0;
 
@@ -117,14 +118,13 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    //Set Time-To-Live (TTL) to 115
+    // Set Time-To-Live (TTL) to 115
     int ttl = 115;
-    if(setsockopt(sock, IPPROTO_IP, IP_TTL, &ttl, sizeof(int)) < 0)
+    if (setsockopt(sock, IPPROTO_IP, IP_TTL, &ttl, sizeof(int)) < 0)
     {
         printf("setsockopt() failed with error %d\n", errno);
         exit(1);
     }
-
 
     printf("PING %s: %d data bytes\n", destinationIP, datalen);
     struct timeval start, end;
@@ -165,12 +165,15 @@ int main(int argc, char *argv[])
     memcpy(reply, packet + ICMP_HDRLEN + IP4_HDRLEN, datalen);
     // printf("ICMP reply: %s \n", reply);
 
-    printf("icmp_seq=%d\n", icmphdr.icmp_seq++);
+    printf("icmp_seq=%d\n", seq);
     printf("ttl=%d\n", ttl);
 
     float milliseconds = (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec) / 1000.0f;
     printf("time=%f ms\n", milliseconds);
 
+    // Format acceptence massage
+    printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%f ms\n", bytes_received, destinationIP, seq, ttl, milliseconds);
+    seq++;
     // Close the raw socket descriptor.
     close(sock);
 
