@@ -52,7 +52,7 @@ unsigned short calculate_checksum(unsigned short *paddress, int len);
 
 int main(int argc, char *argv[])
 {
-    if (argc != 1)
+    if (argc != 2)
     {
         printf("Destination IP parameter is undecleared%d\n", errno);
         exit(1);
