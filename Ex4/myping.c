@@ -16,35 +16,26 @@
 #include <sys/time.h> // gettimeofday()
 #include <sys/types.h>
 #include <unistd.h>
-
-#define PACKETSIZE 64 // size of data payload
-
+#include <signal.h>
 // IPv4 header len without options
 #define IP4_HDRLEN 20
 
 // ICMP header len for echo req
 #define ICMP_HDRLEN 8
 
+//Make socket a global variable
+int sock = -1;
+
 // Checksum algo
 unsigned short calculate_checksum(unsigned short *paddress, int len);
 
-// 1. Change SOURCE_IP and DESTINATION_IP to the relevant
-//     for your computer
-// 2. Compile it using MSVC compiler or g++
-// 3. Run it from the account with administrative permissions,
-//    since opening of a raw-socket requires elevated preveledges.
-//
-//    On Windows, right click the exe and select "Run as administrator"
-//    On Linux, run it as a root or with sudo.
-//
-// 4. For debugging and development, run MS Visual Studio (MSVS) as admin by
-//    right-clicking at the icon of MSVS and selecting from the right-click
-//    menu "Run as administrator"
-//
-//  Note. You can place another IP-source address that does not belong to your
-//  computer (IP-spoofing), i.e. just another IP from your subnet, and the ICMP
-//  still be sent, but do not expect to see ICMP_ECHO_REPLY in most such cases
-//  since anti-spoofing is wide-spread.
+// User interrupt hanle
+void interrupttHandler()
+{
+    printf("User interrupts the proccess, exit gracefully...\n");
+    close(sock);
+    exit(0);
+}
 
 #define SOURCE_IP "127.0.0.1"
 // i.e the gateway or ping to google.com for their ip-address
@@ -60,14 +51,33 @@ int main(int argc, char *argv[])
 
     char *destinationIP = argv[1];
 
+    // Create raw socket for IP-RAW (make IP-header by yourself)
+    if ((sock = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
+    {
+        fprintf(stderr, "socket() failed with error: %d", errno);
+        fprintf(stderr, "To create a raw socket, the process needs to be run by Admin/root user.\n\n");
+        exit(1);
+    }
+
+    // Set Time-To-Live (TTL) to 115
+    int ttl = 115;
+    if (setsockopt(sock, IPPROTO_IP, IP_TTL, &ttl, sizeof(int)) < 0)
+    {
+        printf("setsockopt() failed with error %d\n", errno);
+        exit(1);
+    }
+
+    signal(SIGINT, interrupttHandler);
+    struct icmp icmphdr; // ICMP-header
+    char data[IP_MAXPACKET] = "This is the ping.\n";
+
+    int datalen = strlen(data) + 1;
+
+    printf("PING %s: %d data bytes\n", destinationIP, datalen);
+
     int i = 0;
     while (i++ < 5)
     {
-
-        struct icmp icmphdr; // ICMP-header
-        char data[IP_MAXPACKET] = "This is the ping that contains 56 bytes which is sent.\n";
-
-        int datalen = strlen(data) + 1;
 
         //===================
         // ICMP header
@@ -77,8 +87,7 @@ int main(int argc, char *argv[])
         icmphdr.icmp_type = ICMP_ECHO;
 
         // Message Code (8 bits): echo request
-        unsigned short seq = icmphdr.icmp_code;
-        seq = 0;
+        icmphdr.icmp_code = 0;
 
         // Identifier (16 bits): some number to trace the response.
         // It will be copied to the response packet and used to map response to the request sent earlier.
@@ -86,7 +95,8 @@ int main(int argc, char *argv[])
         icmphdr.icmp_id = 18;
 
         // Sequence Number (16 bits): starts at 0
-        icmphdr.icmp_seq = 0;
+        unsigned short seq = icmphdr.icmp_seq;
+        seq = 0;
 
         // ICMP header checksum (16 bits): set to 0 not to include into checksum calculation
         icmphdr.icmp_cksum = 0;
@@ -112,25 +122,6 @@ int main(int argc, char *argv[])
         // dest_in.sin_addr.s_addr = iphdr.ip_dst.s_addr;
         dest_in.sin_addr.s_addr = inet_addr(destinationIP);
         // inet_pton(AF_INET, DESTINATION_IP, &(dest_in.sin_addr.s_addr));
-
-        // Create raw socket for IP-RAW (make IP-header by yourself)
-        int sock = -1;
-        if ((sock = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
-        {
-            fprintf(stderr, "socket() failed with error: %d", errno);
-            fprintf(stderr, "To create a raw socket, the process needs to be run by Admin/root user.\n\n");
-            return -1;
-        }
-
-        // Set Time-To-Live (TTL) to 115
-        int ttl = 115;
-        if (setsockopt(sock, IPPROTO_IP, IP_TTL, &ttl, sizeof(int)) < 0)
-        {
-            printf("setsockopt() failed with error %d\n", errno);
-            exit(1);
-        }
-
-        printf("PING %s: %d data bytes\n", destinationIP, datalen);
 
         struct timeval start, end;
         gettimeofday(&start, 0);
@@ -179,10 +170,11 @@ int main(int argc, char *argv[])
         // Format acceptence massage
         printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%f ms\n", bytes_received, destinationIP, seq, ttl, milliseconds);
         seq++;
-
-        // Close the raw socket descriptor.
-        close(sock);
+        sleep(1);
     }
+
+    // Close the raw socket descriptor.
+    close(sock);
 
     return 0;
 }
