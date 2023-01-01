@@ -11,6 +11,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#include <fcntl.h>
 
 // IPv4 header len without options
 #define IP4_HDRLEN 20
@@ -24,10 +25,9 @@ int sock = -1;
 // Checksum algo
 unsigned short calculate_checksum(unsigned short *paddress, int len);
 
-
-//START FROM HERE!!!!!!!!!!!!!!!1
-// run 2 programs using fork + exec
-// command: make clean && make all && ./partb
+// START FROM HERE!!!!!!!!!!!!!!!1
+//  run 2 programs using fork + exec
+//  command: make clean && make all && ./partb
 int main(int argc, char *argv[])
 {
     char *args[3];
@@ -46,28 +46,19 @@ int main(int argc, char *argv[])
     int pid = fork();
     if (pid == 0)
     {
-        //we run in this block whatever is related to watchdog
+        // we run in this block whatever is related to watchdog
         printf("in child \n");
         execvp(args[0], args);
     }
     wait(&status); // waiting for child to finish before exiting
     printf("child exit status is: %d", status);
 
-    //here we enter ping code
+    // here we enter ping code
     return 0;
 }
 
-
 int main(int argc, char *argv[])
 {
-    
-    // Create raw socket for IP-RAW (make IP-header by yourself)
-    if ((sock = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
-    {
-        fprintf(stderr, "socket() failed with error: %d", errno);
-        fprintf(stderr, "To create a raw socket, the process needs to be run by Admin/root user.\n\n");
-        exit(1);
-    }
 
     // Set Time-To-Live (TTL) to 115
     int ttl = 115;
@@ -130,7 +121,6 @@ int main(int argc, char *argv[])
 
         struct timeval start, end;
         gettimeofday(&start, 0);
-
 
         // Send the packet using sendto() for sending datagrams.
         int bytes_sent = sendto(sock, packet, ICMP_HDRLEN + datalen, 0, (struct sockaddr *)&dest_in, sizeof(dest_in));
