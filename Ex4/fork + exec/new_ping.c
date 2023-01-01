@@ -63,6 +63,14 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    // Set Time-To-Live (TTL) to 115
+    int ttl = 115;
+    if (setsockopt(sock, IPPROTO_IP, IP_TTL, &ttl, sizeof(int)) < 0)
+    {
+        printf("setsockopt() failed with error %d\n", errno);
+        exit(1);
+    }
+
     // compiled watchdog.c by makefile
     args[0] = "./watchdog";
     args[1] = NULL;
@@ -81,16 +89,37 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+
+// Compute checksum (RFC 1071).
+unsigned short calculate_checksum(unsigned short *paddress, int len)
+{
+    int nleft = len;
+    int sum = 0;
+    unsigned short *w = paddress;
+    unsigned short answer = 0;
+
+    while (nleft > 1)
+    {
+        sum += *w++;
+        nleft -= 2;
+    }
+
+    if (nleft == 1)
+    {
+        *((unsigned char *)&answer) = *((unsigned char *)w);
+        sum += answer;
+    }
+
+    // add back carry outs from top 16 bits to low 16 bits
+    sum = (sum >> 16) + (sum & 0xffff); // add hi 16 to low 16
+    sum += (sum >> 16);                 // add carry
+    answer = ~sum;                      // truncate to 16 bits
+
+    return answer;
+}
+
 int main(int argc, char *argv[])
 {
-
-    // Set Time-To-Live (TTL) to 115
-    int ttl = 115;
-    if (setsockopt(sock, IPPROTO_IP, IP_TTL, &ttl, sizeof(int)) < 0)
-    {
-        printf("setsockopt() failed with error %d\n", errno);
-        exit(1);
-    }
 
     struct icmp icmphdr; // ICMP-header
     char data[IP_MAXPACKET] = "This is the ping.\n";
@@ -184,32 +213,4 @@ int main(int argc, char *argv[])
     // Close the raw socket descriptor.
     close(sock);
     return 0;
-}
-
-// Compute checksum (RFC 1071).
-unsigned short calculate_checksum(unsigned short *paddress, int len)
-{
-    int nleft = len;
-    int sum = 0;
-    unsigned short *w = paddress;
-    unsigned short answer = 0;
-
-    while (nleft > 1)
-    {
-        sum += *w++;
-        nleft -= 2;
-    }
-
-    if (nleft == 1)
-    {
-        *((unsigned char *)&answer) = *((unsigned char *)w);
-        sum += answer;
-    }
-
-    // add back carry outs from top 16 bits to low 16 bits
-    sum = (sum >> 16) + (sum & 0xffff); // add hi 16 to low 16
-    sum += (sum >> 16);                 // add carry
-    answer = ~sum;                      // truncate to 16 bits
-
-    return answer;
 }
