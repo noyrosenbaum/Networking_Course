@@ -5,14 +5,18 @@
 
 int main()
 {
+
+
+    return 0;
+}
+
+//Staff's code
+/*
     int timer = 0;
-    printf("hello partb");
     while (timer < 10)
     {
         recv();
         timer = 0seconds;
     }
     send("timeout")
-
-        return 0;
-}
+*/
