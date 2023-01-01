@@ -39,6 +39,30 @@ int main(int argc, char *argv[])
 
     char *destinationIP = argv[2];
 
+    // Create raw socket for IP-RAW (make IP-header by yourself)
+    if ((sock = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
+    {
+        fprintf(stderr, "socket() failed with error: %d", errno);
+        fprintf(stderr, "To create a raw socket, the process needs to be run by Admin/root user.\n\n");
+        exit(1);
+    }
+
+    // Retrieve current parameter from the socket
+    int sockMode = fcntl(sock, F_GETFL, 0);
+    if (sockMode < 0)
+    {
+        printf("fcntl proccess failed with error%d\n", errno);
+        exit(1);
+    }
+
+    // Set socket to be in non blocking mode for later use using fcntl
+    sockMode |= O_NONBLOCK;
+    if (fcntl(sock, F_SETFL, sockMode) < 0)
+    {
+        printf("fcntl proccess failed with error%d\n", errno);
+        exit(1);
+    }
+
     // compiled watchdog.c by makefile
     args[0] = "./watchdog";
     args[1] = NULL;
