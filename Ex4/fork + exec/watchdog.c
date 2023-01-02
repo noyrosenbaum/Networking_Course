@@ -36,23 +36,7 @@ int createSocket(struct sockaddr_in *serverAddress)
         printf("setsockopt() failed with error code : %d\n", errno);
         return 1;
     }
-
-    // // Retrieve current parameter from the socket
-    // int sockMode = fcntl(listeningSocket, F_GETFL, 0);
-    // if (sockMode < 0)
-    // {
-    //     printf("fcntl proccess failed with error%d\n", errno);
-    //     exit(1);
-    // }
-
-    // // Set socket to be in non blocking mode for later use using fcntl
-    // sockMode |= O_NONBLOCK;
-    // if (fcntl(listeningSocket, F_SETFL, sockMode) < 0)
-    // {
-    //     printf("Set non-blocking I/O mode failed with error%d\n", errno);
-    //     exit(1);
-    // }
-
+    
     // "sockaddr_in" is the "derived" from sockaddr structure
     // used for IPv4 communication. For IPv6, use sockaddr_in6
     //

@@ -11,8 +11,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
-#include <fcntl.h>
-#include <sys/wait.h>
 
 #define SERVER_PORT 3000
 #define SERVER_IP "127.0.0.1"
@@ -66,29 +64,13 @@ int main(int argc, char *argv[])
 
     char *destinationIP = argv[1];
     char *args[2];
-    // Create raw socket for IP-RAW (make IP-header by yourself)
+    // Create raw socket for IP-RAW 
     if ((sock = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
     {
         fprintf(stderr, "socket() (raw) failed with error: %d", errno);
         fprintf(stderr, "To create a raw socket, the process needs to be run by Admin/root user.\n\n");
         exit(1);
     }
-
-    // // Retrieve current parameter from the socket
-    // int sockMode = fcntl(sock, F_GETFL, 0);
-    // if (sockMode < 0)
-    // {
-    //     printf("fcntl proccess failed with error%d\n", errno);
-    //     exit(1);
-    // }
-
-    // // Set socket to be in non blocking mode for later use using fcntl
-    // sockMode |= O_NONBLOCK;
-    // if (fcntl(sock, F_SETFL, sockMode) < 0)
-    // {
-    //     printf("Set non-blocking I/O mode failed with error%d\n", errno);
-    //     exit(1);
-    // }
 
     // Set Time-To-Live (TTL) to 115
     int ttl = 115;
@@ -127,8 +109,6 @@ int main(int argc, char *argv[])
     }
 
     printf("connected to server\n");
-    // wait(&status); // waiting for child to finish before exiting
-
     return 0;
 }
 
