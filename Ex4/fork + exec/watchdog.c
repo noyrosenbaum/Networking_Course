@@ -13,24 +13,19 @@
 #include <fcntl.h>
 
 #define TIMEOUT 10 // milliseconds - ENSURE IN CODE THE TIME UNITS
-#define RECEIVER_PORT 3000
+#define SERVER_PORT 3000
 #define IP "127.0.0.1"
 
-int main()
+int createSocket(struct sockaddr_in *serverAddress)
 {
-
-    // Create listening socket
-    int listeningSocket;
-    struct sockaddr_in receiverAddress;
-
+    // Open the listening (server) socket
+    int listeningSocket = -1;
     listeningSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); // 0 means default protocol for stream sockets (Equivalently, IPPROTO_TCP)
     if (listeningSocket == -1)
     {
         printf("Could not create listening socket : %d\n", errno);
-        return -1;
+        return 1;
     }
-    else
-        (printf("A new listening socket has been created\n"));
 
     // Reuse the address if the server socket on was closed
     // and remains for 45 seconds in TIME-WAIT state till the final removal.
@@ -38,7 +33,7 @@ int main()
     int ret = setsockopt(listeningSocket, SOL_SOCKET, SO_REUSEADDR, &enableReuse, sizeof(int));
     if (ret < 0)
     {
-        printf("Setsockopt() failed with error code : %d\n", errno);
+        printf("setsockopt() failed with error code : %d\n", errno);
         return 1;
     }
 
@@ -60,15 +55,16 @@ int main()
 
     // "sockaddr_in" is the "derived" from sockaddr structure
     // used for IPv4 communication. For IPv6, use sockaddr_in6
+    //
+    // struct sockaddr_in serverAddress;
+    memset(serverAddress, 0, sizeof(*serverAddress));
 
-    memset(&receiverAddress, 0, sizeof(receiverAddress));
-
-    receiverAddress.sin_family = AF_INET;
-    receiverAddress.sin_addr.s_addr = INADDR_ANY;    // any IP at this port (Address to accept any incoming messages)
-    receiverAddress.sin_port = htons(RECEIVER_PORT); // network order (makes byte order consistent)
+    serverAddress->sin_family = AF_INET;
+    serverAddress->sin_addr.s_addr = INADDR_ANY;  // any IP at this port (Address to accept any incoming messages)
+    serverAddress->sin_port = htons(SERVER_PORT); // network order (makes byte order consistent)
 
     // Bind the socket to the port with any IP at this port
-    int bindResult = bind(listeningSocket, (struct sockaddr *)&receiverAddress, sizeof(receiverAddress));
+    int bindResult = bind(listeningSocket, (struct sockaddr *)serverAddress, sizeof(*serverAddress));
     if (bindResult == -1)
     {
         printf("Bind failed with error code : %d\n", errno);
@@ -82,22 +78,39 @@ int main()
     // Make the socket listening; actually mother of all client sockets.
     // 500 is a Maximum size of queue connection requests
     // number of concurrent connections
-    int listenResult = listen(listeningSocket, 4);
+    int listenResult = listen(listeningSocket, 1);
     if (listenResult == -1)
     {
-        printf("Listen() failed with error code : %d\n", errno);
+        printf("listen() failed with error code : %d\n", errno);
         // close the socket
         close(listeningSocket);
         return -1;
     }
-    printf("Listening to sender\n");
+    printf("Sender's socket successfully created\n");
+    return listeningSocket;
+}
 
-    // Build receiver information
+int main()
+{
+    // Create Client socket
+    int serverSocket;
+    struct sockaddr_in serverAddress;
+    serverSocket = createSocket(&serverAddress);
+    printf("Listen to client\n");
+
+    // Build Client information
     printf("Waiting for incoming TCP-connections...\n");
-    struct sockaddr_in senderAddress;
-    socklen_t senderAddressLen = sizeof(senderAddress);
-    memset(&senderAddress, 0, sizeof(senderAddress));
-    senderAddressLen = sizeof(senderAddress);
+    struct sockaddr_in clientAddress;
+    socklen_t clientAddressLen = sizeof(clientAddress);
+    memset(&clientAddress, 0, sizeof(clientAddress));
+    clientAddressLen = sizeof(clientAddress);
+
+    // // Build receiver information
+    // printf("Waiting for incoming TCP-connections...\n");
+    // struct sockaddr_in senderAddress;
+    // socklen_t senderAddressLen = sizeof(senderAddress);
+    // memset(&senderAddress, 0, sizeof(senderAddress));
+    // senderAddressLen = sizeof(senderAddress);
 
     // Accepts incoming connections
     int senderSocket = accept(listeningSocket, (struct sockaddr *)&senderAddress, &senderAddressLen);
