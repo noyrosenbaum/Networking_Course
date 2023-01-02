@@ -58,17 +58,14 @@ int createSocket(struct sockaddr_in *serverAddress)
 //  command: make clean && make all && ./partb
 int main(int argc, char *argv[])
 {
-    // inside main parenthesis:
-    // int argc, char *argv[]
+    if (argc != 2)
+    {
+        printf("Destination IP parameter is undecleared%d\n", errno);
+        exit(1);
+    }
+
+    char *destinationIP = argv[1];
     char *args[2];
-    // if (argc != 3)
-    // {
-    //     printf("Destination IP parameter is undecleared%d\n", errno);
-    //     exit(1);
-    // }
-
-    // char *destinationIP = argv[2];
-
     // Create raw socket for IP-RAW (make IP-header by yourself)
     if ((sock = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
     {
@@ -77,21 +74,21 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    // Retrieve current parameter from the socket
-    int sockMode = fcntl(sock, F_GETFL, 0);
-    if (sockMode < 0)
-    {
-        printf("fcntl proccess failed with error%d\n", errno);
-        exit(1);
-    }
+    // // Retrieve current parameter from the socket
+    // int sockMode = fcntl(sock, F_GETFL, 0);
+    // if (sockMode < 0)
+    // {
+    //     printf("fcntl proccess failed with error%d\n", errno);
+    //     exit(1);
+    // }
 
-    // Set socket to be in non blocking mode for later use using fcntl
-    sockMode |= O_NONBLOCK;
-    if (fcntl(sock, F_SETFL, sockMode) < 0)
-    {
-        printf("Set non-blocking I/O mode failed with error%d\n", errno);
-        exit(1);
-    }
+    // // Set socket to be in non blocking mode for later use using fcntl
+    // sockMode |= O_NONBLOCK;
+    // if (fcntl(sock, F_SETFL, sockMode) < 0)
+    // {
+    //     printf("Set non-blocking I/O mode failed with error%d\n", errno);
+    //     exit(1);
+    // }
 
     // Set Time-To-Live (TTL) to 115
     int ttl = 115;
@@ -112,8 +109,7 @@ int main(int argc, char *argv[])
         printf("in child \n");
         execvp(args[0], args);
     }
-    wait(&status); // waiting for child to finish before exiting
-    printf("child exit status is: %d\n", status);
+    sleep(1);
 
     // Create TCP socket
     int clientSocket;
@@ -122,7 +118,7 @@ int main(int argc, char *argv[])
 
     // Make a connection to the server with socket SendingSocket.
     int connectResult = connect(clientSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
-    if (connectResult == -1)
+    if(connectResult == -1)
     {
         printf("connect() failed with error code : %d\n", errno);
         // cleanup the socket;
@@ -131,9 +127,9 @@ int main(int argc, char *argv[])
     }
 
     printf("connected to server\n");
+    // wait(&status); // waiting for child to finish before exiting
 
-
-return 0;
+    return 0;
 }
 
 // Compute checksum (RFC 1071).

@@ -15,7 +15,6 @@
 
 #define TIMEOUT 10 // milliseconds - ENSURE IN CODE THE TIME UNITS
 #define SERVER_PORT 3000
-#define IP "127.0.0.1"
 
 int createSocket(struct sockaddr_in *serverAddress)
 {
@@ -38,21 +37,21 @@ int createSocket(struct sockaddr_in *serverAddress)
         return 1;
     }
 
-    // Retrieve current parameter from the socket
-    int sockMode = fcntl(listeningSocket, F_GETFL, 0);
-    if (sockMode < 0)
-    {
-        printf("fcntl proccess failed with error%d\n", errno);
-        exit(1);
-    }
+    // // Retrieve current parameter from the socket
+    // int sockMode = fcntl(listeningSocket, F_GETFL, 0);
+    // if (sockMode < 0)
+    // {
+    //     printf("fcntl proccess failed with error%d\n", errno);
+    //     exit(1);
+    // }
 
-    // Set socket to be in non blocking mode for later use using fcntl
-    sockMode |= O_NONBLOCK;
-    if (fcntl(listeningSocket, F_SETFL, sockMode) < 0)
-    {
-        printf("Set non-blocking I/O mode failed with error%d\n", errno);
-        exit(1);
-    }
+    // // Set socket to be in non blocking mode for later use using fcntl
+    // sockMode |= O_NONBLOCK;
+    // if (fcntl(listeningSocket, F_SETFL, sockMode) < 0)
+    // {
+    //     printf("Set non-blocking I/O mode failed with error%d\n", errno);
+    //     exit(1);
+    // }
 
     // "sockaddr_in" is the "derived" from sockaddr structure
     // used for IPv4 communication. For IPv6, use sockaddr_in6
@@ -73,13 +72,15 @@ int createSocket(struct sockaddr_in *serverAddress)
         close(listeningSocket);
         exit(1);
     }
-
-    printf("Bind() success\n");
+    else
+    {
+        printf("Bind() success\n");
+    }
 
     // Make the socket listening; actually mother of all client sockets.
     // 500 is a Maximum size of queue connection requests
     // number of concurrent connections
-    int listenResult = listen(listeningSocket, 1);
+    int listenResult = listen(listeningSocket, 500);
     if (listenResult == -1)
     {
         printf("listen() failed with error code : %d\n", errno);
@@ -87,8 +88,11 @@ int createSocket(struct sockaddr_in *serverAddress)
         close(listeningSocket);
         return -1;
     }
-    printf("Listening for connections on port %d...\n", SERVER_PORT);
-    // printf("Server's socket successfully created\n");
+    else
+    {
+        printf("Listening for connections on port %d...\n", SERVER_PORT);
+    }
+
     return listeningSocket;
 }
 
@@ -115,8 +119,11 @@ int main()
         close(serverSocket);
         return -1;
     }
+    else
+    {
+        printf("Client connected..!\n");
+    }
 
-    printf("Client connected..!\n");
     return 0;
 }
 
