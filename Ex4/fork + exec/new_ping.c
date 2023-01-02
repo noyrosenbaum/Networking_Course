@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     sockMode |= O_NONBLOCK;
     if (fcntl(sock, F_SETFL, sockMode) < 0)
     {
-        printf("fcntl proccess failed with error%d\n", errno);
+        printf("Set non-blocking I/O mode failed with error%d\n", errno);
         exit(1);
     }
 
