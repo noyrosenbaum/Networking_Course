@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 
     char *destinationIP = argv[1];
     char *args[2];
-    // Create raw socket for IP-RAW 
+    // Create raw socket for IP-RAW
     if ((sock = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
     {
         fprintf(stderr, "socket() (raw) failed with error: %d", errno);
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 
     // Make a connection to the server with socket SendingSocket.
     int connectResult = connect(clientSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
-    if(connectResult == -1)
+    if (connectResult == -1)
     {
         printf("connect() failed with error code : %d\n", errno);
         // cleanup the socket;
@@ -109,7 +109,69 @@ int main(int argc, char *argv[])
     }
 
     printf("connected to server\n");
-    return 0;
+
+    struct icmp icmphdr; // ICMP-header
+    char data[IP_MAXPACKET] = "This is the ping.\n";
+    int datalen = strlen(data) + 1;
+
+    // Sequence Number (16 bits): starts at 0
+    unsigned short seq = icmphdr.icmp_seq;
+    seq = 0;
+
+    printf("PING %s: %d data bytes\n", destinationIP, datalen);
+
+    while (1)
+    {
+        //===================
+        // ICMP header
+        //===================
+
+        // Message Type (8 bits): ICMP_ECHO_REQUEST
+        icmphdr.icmp_type = ICMP_ECHO;
+
+        // Message Code (8 bits): echo request
+        icmphdr.icmp_code = 0;
+
+        // Identifier (16 bits): some number to trace the response.
+        // It will be copied to the response packet and used to map response to the request sent earlier.
+        // Thus, it serves as a Transaction-ID when we need to make "ping"
+        icmphdr.icmp_id = 18;
+
+        // ICMP header checksum (16 bits): set to 0 not to include into checksum calculation
+        icmphdr.icmp_cksum = 0;
+
+        // Combine the packet
+        char packet[IP_MAXPACKET];
+
+        // Next, ICMP header
+        memcpy((packet), &icmphdr, ICMP_HDRLEN);
+
+        // After ICMP header, add the ICMP data.
+        memcpy(packet + ICMP_HDRLEN, data, datalen);
+
+        // Calculate the ICMP header checksum
+        icmphdr.icmp_cksum = calculate_checksum((unsigned short *)(packet), ICMP_HDRLEN + datalen);
+        memcpy((packet), &icmphdr, ICMP_HDRLEN);
+
+        struct sockaddr_in dest_in;
+        memset(&dest_in, 0, sizeof(struct sockaddr_in));
+        dest_in.sin_family = AF_INET;
+
+        // The port is irrelant for Networking and therefore was zeroed.
+        dest_in.sin_addr.s_addr = inet_addr(destinationIP);
+
+        struct timeval start, end;
+        gettimeofday(&start, 0);
+
+        // Send the packet using sendto() for sending datagrams.
+        int bytes_sent = sendto(sock, packet, ICMP_HDRLEN + datalen, 0, (struct sockaddr *)&dest_in, sizeof(dest_in));
+        if (bytes_sent == -1)
+        {
+            fprintf(stderr, "sendto() failed with error: %d\n", errno);
+            return -1;
+        }
+        return 0;
+    }
 }
 
 // Compute checksum (RFC 1071).
@@ -140,70 +202,8 @@ unsigned short calculate_checksum(unsigned short *paddress, int len)
     return answer;
 }
 
-// int main(int argc, char *argv[])
-// {
-
-//     struct icmp icmphdr; // ICMP-header
-//     char data[IP_MAXPACKET] = "This is the ping.\n";
-//     int datalen = strlen(data) + 1;
-
-//     // Sequence Number (16 bits): starts at 0
-//     unsigned short seq = icmphdr.icmp_seq;
-//     seq = 0;
-
-//     printf("PING %s: %d data bytes\n", destinationIP, datalen);
-
-//     while (1)
+//     int main(int argc, char *argv[])
 //     {
-
-//         //===================
-//         // ICMP header
-//         //===================
-
-//         // Message Type (8 bits): ICMP_ECHO_REQUEST
-//         icmphdr.icmp_type = ICMP_ECHO;
-
-//         // Message Code (8 bits): echo request
-//         icmphdr.icmp_code = 0;
-
-//         // Identifier (16 bits): some number to trace the response.
-//         // It will be copied to the response packet and used to map response to the request sent earlier.
-//         // Thus, it serves as a Transaction-ID when we need to make "ping"
-//         icmphdr.icmp_id = 18;
-
-//         // ICMP header checksum (16 bits): set to 0 not to include into checksum calculation
-//         icmphdr.icmp_cksum = 0;
-
-//         // Combine the packet
-//         char packet[IP_MAXPACKET];
-
-//         // Next, ICMP header
-//         memcpy((packet), &icmphdr, ICMP_HDRLEN);
-
-//         // After ICMP header, add the ICMP data.
-//         memcpy(packet + ICMP_HDRLEN, data, datalen);
-
-//         // Calculate the ICMP header checksum
-//         icmphdr.icmp_cksum = calculate_checksum((unsigned short *)(packet), ICMP_HDRLEN + datalen);
-//         memcpy((packet), &icmphdr, ICMP_HDRLEN);
-
-//         struct sockaddr_in dest_in;
-//         memset(&dest_in, 0, sizeof(struct sockaddr_in));
-//         dest_in.sin_family = AF_INET;
-
-//         // The port is irrelant for Networking and therefore was zeroed.
-//         dest_in.sin_addr.s_addr = inet_addr(destinationIP);
-
-//         struct timeval start, end;
-//         gettimeofday(&start, 0);
-
-//         // Send the packet using sendto() for sending datagrams.
-//         int bytes_sent = sendto(sock, packet, ICMP_HDRLEN + datalen, 0, (struct sockaddr *)&dest_in, sizeof(dest_in));
-//         if (bytes_sent == -1)
-//         {
-//             fprintf(stderr, "sendto() failed with error: %d\n", errno);
-//             return -1;
-//         }
 
 //         // Get the ping response
 //         bzero(packet, IP_MAXPACKET);
