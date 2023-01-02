@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <sys/wait.h>
 
 #define TIMEOUT 10 // milliseconds - ENSURE IN CODE THE TIME UNITS
 #define SERVER_PORT 3000
@@ -86,7 +87,8 @@ int createSocket(struct sockaddr_in *serverAddress)
         close(listeningSocket);
         return -1;
     }
-    printf("Sender's socket successfully created\n");
+    printf("Listening for connections on port %d...\n", SERVER_PORT);
+    // printf("Server's socket successfully created\n");
     return listeningSocket;
 }
 
@@ -96,7 +98,6 @@ int main()
     int serverSocket;
     struct sockaddr_in serverAddress;
     serverSocket = createSocket(&serverAddress);
-    printf("Listen to client\n");
 
     // Build Client information
     printf("Waiting for incoming TCP-connections...\n");
@@ -105,24 +106,17 @@ int main()
     memset(&clientAddress, 0, sizeof(clientAddress));
     clientAddressLen = sizeof(clientAddress);
 
-    // // Build receiver information
-    // printf("Waiting for incoming TCP-connections...\n");
-    // struct sockaddr_in senderAddress;
-    // socklen_t senderAddressLen = sizeof(senderAddress);
-    // memset(&senderAddress, 0, sizeof(senderAddress));
-    // senderAddressLen = sizeof(senderAddress);
-
     // Accepts incoming connections
-    int senderSocket = accept(listeningSocket, (struct sockaddr *)&senderAddress, &senderAddressLen);
+    int senderSocket = accept(serverSocket, (struct sockaddr *)&clientAddress, &clientAddressLen);
     if (senderSocket == -1)
     {
-        printf("Listen failed with error code : %d\n", errno);
+        printf("Accept failed with error code : %d\n", errno);
         // close the sockets
-        close(listeningSocket);
+        close(serverSocket);
         return -1;
     }
 
-    printf("A new connection accepted\n");
+    printf("Client connected..!\n");
     return 0;
 }
 
