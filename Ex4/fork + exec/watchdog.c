@@ -15,6 +15,7 @@
 
 #define TIMEOUT 10 // milliseconds - ENSURE IN CODE THE TIME UNITS
 #define SERVER_PORT 3000
+#define SERVER_IP "127.0.0.1"
 
 int createSocket(struct sockaddr_in *serverAddress)
 {
@@ -125,5 +126,9 @@ int main()
         }
     }
 
+    printf("server %s cannot be reached.\n", SERVER_IP);
+    close(serverSocket);
+    close(senderSocket);
+    kill(getppid(), SIGKILL);
     return 0;
 }
