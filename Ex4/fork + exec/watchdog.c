@@ -36,7 +36,7 @@ int createSocket(struct sockaddr_in *serverAddress)
         printf("setsockopt() failed with error code : %d\n", errno);
         return 1;
     }
-    
+
     // "sockaddr_in" is the "derived" from sockaddr structure
     // used for IPv4 communication. For IPv6, use sockaddr_in6
     //
@@ -108,16 +108,22 @@ int main()
         printf("Client connected..!\n");
     }
 
-    return 0;
-}
-
-// Staff's code
-/*
+    // timer section
     int timer = 0;
+    char signal[2] = {0};
     while (timer < 10)
     {
-        recv();
-        timer = 0seconds;
+        timer++;
+        if (timer == 10)
+        {
+            break; // out of the loop
+        }
+        int signalRecv = recv(senderSocket, signal, sizeof(signal), 0);
+        if (signalRecv > 0)
+        {
+            timer = 0;
+        }
     }
-    send("timeout")
-*/
+
+    return 0;
+}
