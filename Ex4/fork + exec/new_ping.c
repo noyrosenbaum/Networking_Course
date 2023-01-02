@@ -170,8 +170,53 @@ int main(int argc, char *argv[])
             fprintf(stderr, "sendto() failed with error: %d\n", errno);
             return -1;
         }
-        return 0;
+
+        // alert watchdog for incoming message
+        char signal[2] = {1};
+        int signalSend = send(clientSocket, signal, sizeof(signal), 0);
+        if (signalSend == -1)
+        {
+            printf("Send() failed with error code : %d\n", errno);
+            close(clientSocket);
+            return -1;
+        }
+
+        else if (signalSend == 0)
+        {
+            printf("Peer has closed the TCP connection prior to send().\n");
+            return -1;
+        }
+
+        // Get the ping response
+        bzero(packet, IP_MAXPACKET);
+        socklen_t len = sizeof(dest_in);
+        ssize_t bytes_received = -1;
+
+        while ((bytes_received = recvfrom(sock, packet, sizeof(packet), 0, (struct sockaddr *)&dest_in, &len)))
+        {
+            if (bytes_received > 0)
+            {
+                // Check the IP header
+                struct iphdr *iphdr = (struct iphdr *)packet;
+                struct icmphdr *icmphdr = (struct icmphdr *)(packet + (iphdr->ihl * 4));
+                break;
+            }
+        }
+
+        gettimeofday(&end, 0);
+
+        char reply[IP_MAXPACKET];
+        memcpy(reply, packet + ICMP_HDRLEN + IP4_HDRLEN, datalen);
+        float milliseconds = (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec) / 1000.0f;
+
+        // Format acceptence massage
+        printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%f ms\n", bytes_received, destinationIP, seq, ttl, milliseconds);
+        seq++;
+        sleep(1);
     }
+    // Close the raw socket descriptor.
+    close(sock);
+    return 0;
 }
 
 // Compute checksum (RFC 1071).
@@ -201,38 +246,3 @@ unsigned short calculate_checksum(unsigned short *paddress, int len)
 
     return answer;
 }
-
-//     int main(int argc, char *argv[])
-//     {
-
-//         // Get the ping response
-//         bzero(packet, IP_MAXPACKET);
-//         socklen_t len = sizeof(dest_in);
-//         ssize_t bytes_received = -1;
-//         while ((bytes_received = recvfrom(sock, packet, sizeof(packet), 0, (struct sockaddr *)&dest_in, &len)))
-//         {
-//             if (bytes_received > 0)
-//             {
-//                 // Check the IP header
-//                 struct iphdr *iphdr = (struct iphdr *)packet;
-//                 struct icmphdr *icmphdr = (struct icmphdr *)(packet + (iphdr->ihl * 4));
-//                 break;
-//             }
-//         }
-
-//         gettimeofday(&end, 0);
-
-//         char reply[IP_MAXPACKET];
-//         memcpy(reply, packet + ICMP_HDRLEN + IP4_HDRLEN, datalen);
-//         float milliseconds = (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec) / 1000.0f;
-
-//         // Format acceptence massage
-//         printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%f ms\n", bytes_received, destinationIP, seq, ttl, milliseconds);
-//         seq++;
-//         sleep(1);
-//     }
-
-//     // Close the raw socket descriptor.
-//     close(sock);
-//     return 0;
-// }
