@@ -87,8 +87,6 @@ int main(int argc, char *argv[])
     int pid = fork();
     if (pid == 0)
     {
-        // we run in this block whatever is related to watchdog
-        printf("in child \n");
         execvp(args[0], args);
     }
     sleep(1);
