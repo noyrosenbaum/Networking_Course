@@ -60,7 +60,6 @@ int main()
 
     // "sockaddr_in" is the "derived" from sockaddr structure
     // used for IPv4 communication. For IPv6, use sockaddr_in6
-    //
 
     memset(&receiverAddress, 0, sizeof(receiverAddress));
 
