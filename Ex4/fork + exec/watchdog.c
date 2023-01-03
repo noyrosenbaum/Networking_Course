@@ -10,8 +10,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
-#include <fcntl.h>
-#include <sys/wait.h>
 
 #define TIMEOUT 10 // milliseconds - ENSURE IN CODE THE TIME UNITS
 #define SERVER_PORT 3000
