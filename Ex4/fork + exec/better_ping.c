@@ -169,8 +169,8 @@ int main(int argc, char *argv[])
             return -1;
         }
 
-        // alert watchdog for incoming message
-        char signal[2] = {1};
+        // alert watchdog to set timer after sending a message
+        char signal[1] = {1};
         int signalSend = send(clientSocket, signal, sizeof(signal), 0);
         if (signalSend == -1)
         {
@@ -178,13 +178,11 @@ int main(int argc, char *argv[])
             close(clientSocket);
             return -1;
         }
-
         else if (signalSend == 0)
         {
             printf("Peer has closed the TCP connection prior to send().\n");
             return -1;
         }
-
         // Get the ping response
         bzero(packet, IP_MAXPACKET);
         socklen_t len = sizeof(dest_in);

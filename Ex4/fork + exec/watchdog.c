@@ -111,18 +111,19 @@ int main()
 
     // timer section
     int timer = 0;
-    char signal[2] = {0};
+    char signal[1] = {0};
     while (timer < 10)
     {
-        timer++;
-        if (timer == 10)
-        {
-            break; // out of the loop
-        }
         int signalRecv = recv(senderSocket, signal, sizeof(signal), 0);
+        timer++;
         if (signalRecv > 0)
         {
             timer = 0;
+            printf("timer works\n");
+        }
+        else if(timer == 10)
+        {
+            break; // out of the loop
         }
     }
 
