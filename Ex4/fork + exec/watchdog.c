@@ -65,7 +65,7 @@ int createSocket(struct sockaddr_in *serverAddress)
     // Make the socket listening; actually mother of all client sockets.
     // 500 is a Maximum size of queue connection requests
     // number of concurrent connections
-    int listenResult = listen(listeningSocket, 500);
+    int listenResult = listen(listeningSocket, 300);
     if (listenResult == -1)
     {
         printf("listen() failed with error code : %d\n", errno);
