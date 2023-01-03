@@ -66,8 +66,9 @@ int main(int argc, char *argv[])
     int datalen = strlen(data) + 1;
 
     // Sequence Number (16 bits): starts at 0
-    unsigned short seq = icmphdr.icmp_seq;
-    seq = 0;
+    icmphdr.icmp_seq = 0;
+    // unsigned short seq = icmphdr.icmp_seq;
+    // seq = 0;
 
     printf("PING %s: %d data bytes\n", destinationIP, datalen);
 
@@ -145,8 +146,8 @@ int main(int argc, char *argv[])
         float milliseconds = (end.tv_sec - start.tv_sec) * 1000.0f + (end.tv_usec - start.tv_usec) / 1000.0f;
 
         // Format acceptence massage
-        printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%f ms\n", bytes_received, destinationIP, seq, ttl, milliseconds);
-        seq++;
+        printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%f ms\n", bytes_received, destinationIP, ++icmphdr.icmp_seq, ttl, milliseconds);
+        // seq++;
         sleep(1);
     }
 
