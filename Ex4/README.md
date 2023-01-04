@@ -1,7 +1,22 @@
 <!-- Explanation of the assignment and how to code works -->
 # Pinger using ICMP protocol and Watchdog
 
+- [Pinger using ICMP protocol and Watchdog](#pinger-using-icmp-protocol-and-watchdog)
+  - [Description](#description)
+    - [Part 1 - prototyped Pinger](#part-1---prototyped-pinger)
+  - [Code run tutorial - Ubuntu](#code-run-tutorial---ubuntu)
+    - [Setup project locally](#setup-project-locally)
+      - [Clone an existing repository (**if it does not exist locally already**):](#clone-an-existing-repository-if-it-does-not-exist-locally-already)
+      - [Compilation using Makefile](#compilation-using-makefile)
+      - [Run files](#run-files)
+      - [Delete exe files](#delete-exe-files)
+
 ## Description
+
+### Part 1 - prototyped Pinger
+
+"Prototyped Pinger" (ping.c) is  a utility used to test the reachability of a host on an Internet Protocol (IP) network and to measure the round-trip time for messages sent from the originating host to a destination host.
+
 
 ## Code run tutorial - Ubuntu
 
