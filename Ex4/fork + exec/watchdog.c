@@ -113,24 +113,17 @@ int main()
     int signalRecv = recv(senderSocket, signal, sizeof(signal), MSG_DONTWAIT);
     while (timer < 10)
     {
-        printf("inside timer loop\n");
         timer++;
-        printf("after increment\n");
         sleep(1);
-        printf("after sleep\n");
         if (timer == 10)
         {
-            printf("timer = 10\n");
             break; // out of the loop
         }
-
         if (signalRecv > 0)
         {
-            printf("\n");
             timer = 0;
         }
     }
-    printf("outside timer loop\n");
 
     printf("server %s cannot be reached.\n", SERVER_IP);
     close(serverSocket);
