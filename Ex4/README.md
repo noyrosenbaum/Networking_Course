@@ -18,7 +18,7 @@ Submitters: Noy Rosenbaum and Yael Rosen
 
 ## Description
 
-NOTE: **For detailed explanations about any of the code files, check out the comments in each one of the scripts.**
+**NOTE:** For detailed explanations about any of the code files, check out the comments in each one of the scripts.
 
 ### Part 1 - prototyped Pinger
 
