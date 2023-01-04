@@ -36,15 +36,15 @@ We implenent Part 2 with fork + exec which creates a new process by duplicating 
 *Execution order:*
 1. Checks if given arguments are valid. (Destination IP)
 2. Creates a raw socket.
-3. Gets in "watchdog" process (child part in fork()).
-   3.1. Creates a Stream socket (server side).
-4. Make a TCP connection between 2 sides.
+3. Gets in "watchdog" process (child part in fork())./
+   3.1. Creates a Stream socket (server side)./
+4. Make a TCP connection between 2 sides./
    3.2. Creates a "sender" socket (accept()).
 5. Set up ICMP header.
 6. Enters an infinite loop where we set ICMP packet's values, send this packet via raw socket, send a "signal" to watchdog. \
    3.3. Runs timer in a while loop, increments by 1 second. \
         if timer reaches 10 seconds, gets out of the loop and kill 2 processes. \
-        else, another "signal" has received, - Reset timer back to 0 seconds. \
+        else, another "signal" has received, - Reset timer back to 0 seconds.
 7. Still in an the infinite loop, gets the ping response and finish measure time of RTT, prints ICMP packet details.
 
 ## Code run tutorial - Ubuntu
