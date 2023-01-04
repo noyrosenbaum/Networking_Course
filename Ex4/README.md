@@ -1,6 +1,8 @@
 <!-- Explanation of the assignment and how to code works -->
 # Pinger using ICMP protocol and Watchdog
 
+Submitters: Noy Rosenbaum and Yael Rosen
+
 ## Table of Contents
 - [Pinger using ICMP protocol and Watchdog](#pinger-using-icmp-protocol-and-watchdog)
   - [Table of Contents](#table-of-contents)
