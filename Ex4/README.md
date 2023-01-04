@@ -18,6 +18,8 @@ Submitters: Noy Rosenbaum and Yael Rosen
 
 ## Description
 
+NOTE: **For detailed explanations about any of the code files, check out the comments in each one of the scripts.**
+
 ### Part 1 - prototyped Pinger
 
 "Prototyped Pinger" (ping.c) is  a utility used to test the reachability of a host on an Internet Protocol (IP) network and to measure the round-trip time for messages sent from the host \
