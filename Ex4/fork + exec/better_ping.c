@@ -27,7 +27,7 @@ int sock = -1;
 // Checksum algo
 unsigned short calculate_checksum(unsigned short *paddress, int len);
 
-// Craete new socket
+// Craete new Stream socket
 int createSocket(struct sockaddr_in *serverAddress)
 {
     int client_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -51,11 +51,11 @@ int createSocket(struct sockaddr_in *serverAddress)
     return client_sock;
 }
 
-// START FROM HERE!!!!!!!!!!!!!!!1
 //  run 2 programs using fork + exec
 //  command: make clean && make all && ./partb
 int main(int argc, char *argv[])
 {
+    //Checks if input is valid
     if (argc != 2)
     {
         printf("Destination IP parameter is undecleared%d\n", errno);
@@ -64,6 +64,7 @@ int main(int argc, char *argv[])
 
     char *destinationIP = argv[1];
     char *args[2];
+
     // Create raw socket for IP-RAW
     if ((sock = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
     {
@@ -182,6 +183,7 @@ int main(int argc, char *argv[])
             printf("Peer has closed the TCP connection prior to send().\n");
             return -1;
         }
+        
         // Get the ping response
         bzero(packet, IP_MAXPACKET);
         socklen_t len = sizeof(dest_in);

@@ -11,13 +11,13 @@
 #include <unistd.h>
 #include <signal.h>
 
-#define TIMEOUT 10 // milliseconds - ENSURE IN CODE THE TIME UNITS
 #define SERVER_PORT 3000
 #define SERVER_IP "127.0.0.1"
 
+// Craete new Stream socket
 int createSocket(struct sockaddr_in *serverAddress)
 {
-    // Open the listening (server) socket
+    // Open the listening socket
     int listeningSocket = -1;
     listeningSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); // 0 means default protocol for stream sockets (Equivalently, IPPROTO_TCP)
     if (listeningSocket == -1)
@@ -114,14 +114,14 @@ int main()
     while (timer < 10)
     {
         timer++;
-        sleep(1);
+        sleep(1); //Set time unit - seconds
         if (timer == 10)
         {
             break; // out of the loop
         }
         if (signalRecv > 0)
         {
-            timer = 0;
+            timer = 0; //Reset timer
         }
     }
 
