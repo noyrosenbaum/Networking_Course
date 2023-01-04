@@ -8,7 +8,7 @@
 ### Setup project locally
 
 #### Clone an existing repository (**if it does not exist locally already**):
-NOTE: *Get in the directory where you want to execute the program before.*
+NOTE: *Get in the directory where you want to execute the program before.* \
 To clone a repository locally do:
 ```
 git clone <repo URL>
