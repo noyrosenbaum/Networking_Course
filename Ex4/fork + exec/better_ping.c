@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in serverAddress;
     clientSocket = createSocket(&serverAddress);
 
-    // Make a connection to the server with socket SendingSocket.
+    // Make a connection to the server with socket clientSocket.
     int connectResult = connect(clientSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
     if (connectResult == -1)
     {
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
             printf("Peer has closed the TCP connection prior to send().\n");
             return -1;
         }
-        
+
         // Get the ping response
         bzero(packet, IP_MAXPACKET);
         socklen_t len = sizeof(dest_in);
