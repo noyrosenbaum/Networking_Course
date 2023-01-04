@@ -1,7 +1,9 @@
 <!-- Explanation of the assignment and how to code works -->
 # Pinger using ICMP protocol and Watchdog
 
+## Table of Contents
 - [Pinger using ICMP protocol and Watchdog](#pinger-using-icmp-protocol-and-watchdog)
+  - [Table of Contents](#table-of-contents)
   - [Description](#description)
     - [Part 1 - prototyped Pinger](#part-1---prototyped-pinger)
   - [Code run tutorial - Ubuntu](#code-run-tutorial---ubuntu)
