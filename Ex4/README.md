@@ -78,11 +78,11 @@ make all
 
 1. for prototyped Pinger (ping.c) run:
 ```sh
-sudo ./partA <IP_DESTINATION>
+sudo ./PartA <IP_DESTINATION>
 ```
 2. for Pinger with Watchdog (better_ping.c) run:
 ```sh
-sudo ./partB <IP_DESTINATION>
+sudo ./PartB <IP_DESTINATION>
 ```
 
 #### Delete exe files
