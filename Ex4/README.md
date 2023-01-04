@@ -36,10 +36,10 @@ We implenent Part 2 with fork + exec which creates a new process by duplicating 
 *Execution order:*
 1. Checks if given arguments are valid. (Destination IP)
 2. Creates a raw socket.
-3. Gets in "watchdog" process (child part in fork())./
-   3.1. Creates a Stream socket (server side)./
-4. Make a TCP connection between 2 sides./
-   3.2. Creates a "sender" socket (accept()).
+3. Gets in "watchdog" process (child part in fork()). \
+   3.1. Creates a Stream socket (server side). \
+4. Make a TCP connection between 2 sides. \
+   3.2. Creates a "sender" socket (accept()). \
 5. Set up ICMP header.
 6. Enters an infinite loop where we set ICMP packet's values, send this packet via raw socket, send a "signal" to watchdog. \
    3.3. Runs timer in a while loop, increments by 1 second. \
