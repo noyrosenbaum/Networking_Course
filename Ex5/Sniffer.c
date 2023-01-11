@@ -36,8 +36,14 @@ int main()
     // IP of our sniffing device
     bpf_u_int32 net;
 
-    // Open live pcap session on NIC with name eth3
-    handle = pcap_open_live("eth3", BUFSIZ, 1, 1000, errbuf);
+    FILE *file;
+    file = fopen("206530172_209498211.txt", "w+");
+    if(file = NULL){
+        printf("Can't open file: %d\n", errno);
+    }
+
+    // Open live pcap session on NIC with name loopback
+    handle = pcap_open_live("lo", BUFSIZ, 1, 1000, errbuf);
     if (handle == NULL)
     {
         printf("Can't open device: %s\n", errbuf);
@@ -60,5 +66,7 @@ int main()
     pcap_loop(handle, -1, got_packet, NULL);
 
     pcap_close(handle); // Close the handle
+
+    fclose(file);
     return 0;
 }
