@@ -44,3 +44,4 @@
 
 # Other files
 *.pdf
+/Ex4/fork + exec/watchdog.c
