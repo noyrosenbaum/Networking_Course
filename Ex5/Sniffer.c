@@ -8,7 +8,13 @@
 #include <string.h>
 #include <sys/types.h>
 #include <errno.h>
+#include <net/ethernet.h> // Ethernet header details
+#include <netinet/ether.h>
+#include <netinet/tcp.h> // TCP header details
+#include <netinet/udp.h> // UDP header details
+#include <netinet/ip.h>  // IP header details
 
+/* Application header */
 typedef struct calculatorPacket
 {
     uint32_t unixtime;
@@ -20,7 +26,10 @@ typedef struct calculatorPacket
 
 void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
 {
-
+    struct ethhdr *ethernet = (struct ethheader *)packet;
+    struct iphdr *ip = (struct iphdr *)(packet + sizeof(struct ethhdr));
+    struct tcphdr *tcp = (struct tcphdr *)(packet + sizeof(struct iphdr));
+    char *payload = (u_char *)(packet + sizeof(struct tcphdr));
 }
 
 int main()
@@ -38,7 +47,8 @@ int main()
 
     FILE *file;
     file = fopen("206530172_209498211.txt", "w+");
-    if(file = NULL){
+    if (file = NULL)
+    {
         printf("Can't open file: %d\n", errno);
     }
 
