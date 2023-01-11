@@ -8,11 +8,16 @@
 #include <string.h>
 #include <sys/types.h>
 #include <errno.h>
+#include <time.h>
 #include <net/ethernet.h> // Ethernet header details
 #include <netinet/ether.h>
-#include <netinet/tcp.h> // TCP header details
-#include <netinet/udp.h> // UDP header details
-#include <netinet/ip.h>  // IP header details
+#include <netinet/tcp.h>     // TCP header details
+#include <netinet/udp.h>     // UDP header details
+#include <netinet/ip.h>      // IP header details
+#include <netinet/ip_icmp.h> // ICMP header details
+
+FILE *file;
+#define SOURCE_IP "127.0.0.1"
 
 /* Application header */
 typedef struct calculatorPacket
@@ -26,10 +31,34 @@ typedef struct calculatorPacket
 
 void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
 {
+    // Ethernet
     struct ethhdr *ethernet = (struct ethheader *)packet;
+    // IP
     struct iphdr *ip = (struct iphdr *)(packet + sizeof(struct ethhdr));
+    struct sockaddr_in source, dest;
+    source.sin_addr.s_addr = ip->saddr;
+    dest.sin_addr.s_addr = ip->daddr;
+    // TCP
     struct tcphdr *tcp = (struct tcphdr *)(packet + sizeof(struct iphdr));
-    char *payload = (u_char *)(packet + sizeof(struct tcphdr));
+    // Payload
+    pcpack payload = (pcpack)(packet + sizeof(struct tcphdr));
+    time_t unixTime = payload->unixtime;
+    struct time *utc = gmtime(&unixTime);
+
+    fprintf(file, "\n-----------TCP-----------");
+    fprintf(file, "Source_ip: %s\n", inet_ntoa(source.sin_addr));
+    fprintf(file, "Dest_ip: %s\n", inet_ntoa(dest.sin_addr));
+    fprintf(file, "Source_port: %u\n", ntohs(tcp->source));
+    fprintf(file, "Dest_port: %u\n", ntohs(tcp->dest));
+    fprintf(file, "Timestamp: %s\n", asctime(utc));
+    fprintf(file, "Total_length: %d\n", payload->length);
+    fprintf(file, "Cache_flag: %d\n", payload->c_flag);
+    fprintf(file, "Steps_flag: %d\n", payload->s_flag);
+    fprintf(file, "Type_flag: %d\n", payload->t_flag);
+    fprintf(file, "Status_code: %d\n", payload->status);
+    fprintf(file, "Cache_control: %d\n", payload->cache);
+    fprintf(file, "Data: %d\n", payload->padding);
+    fprintf(file, "\n-------------------------");
 }
 
 int main()
@@ -41,11 +70,10 @@ int main()
     // The compiled filter expression
     struct bpf_program fp;
     // Filter expression
-    char filter_exp[] = "ip proto icmp";
+    char filter_exp[] = "tcp";
     // IP of our sniffing device
     bpf_u_int32 net;
 
-    FILE *file;
     file = fopen("206530172_209498211.txt", "w+");
     if (file = NULL)
     {
