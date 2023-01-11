@@ -17,7 +17,6 @@
 #include <netinet/ip_icmp.h> // ICMP header details
 
 FILE *file;
-#define SOURCE_IP "127.0.0.1"
 
 /* Application header */
 typedef struct calculatorPacket
