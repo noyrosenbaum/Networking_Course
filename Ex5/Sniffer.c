@@ -3,7 +3,6 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
-#include <netinet/ip.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -40,7 +39,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     // TCP
     struct tcphdr *tcp = (struct tcphdr *)(packet + sizeof(struct iphdr));
     // Payload
-    pcpack payload = (pcpack)(packet + sizeof(struct tcphdr));
+    pcpack payload = (pcpack)(packet + sizeof(struct tcphdr) + sizeof(struct iphdr) + sizeof(struct ethhdr));
     time_t unixTime = payload->unixtime;
     struct time *utc = gmtime(&unixTime);
 
