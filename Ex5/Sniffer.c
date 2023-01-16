@@ -57,7 +57,9 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     fprintf(file, "Type_flag: %d\n", payload->t_flag);
     fprintf(file, "Status_code: %d\n", payload->status);
     fprintf(file, "Cache_control: %d\n", payload->cache);
+    fprintf(file, "Padding: %d\n", payload->padding);
     fprintf(file, "Data: %d\n", payload->padding);
+    PrintData(packet + sizeof(payload), sizeof(header));
     fprintf(file, "\n-------------------------");
 
     fclose(file);
