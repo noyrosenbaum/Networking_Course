@@ -15,28 +15,7 @@
 #include <netinet/ip.h>      // IP header details
 #include <netinet/ip_icmp.h> // ICMP header details
 
-void send_raw_ip_packet(struct iphdr *ip)
-{
-    struct sockaddr_in dest_info;
-    int enable = 1;
-
-    // Step 1: Create a raw network socket.
-    int sock = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
-
-    // Step 2: Set socket option.
-    setsockopt(sock, IPPROTO_IP, IP_HDRINCL,
-               &enable, sizeof(enable));
-
-    // Step 3: Provide needed information about destination.
-    dest_info.sin_family = AF_INET;
-    dest_info.sin_addr.s_addr = ip->daddr;
-
-    // Step 4: Send the packet out.
-    sendto(sock, ip, ntohs(ip->tot_len), 0,
-           (struct sockaddr *)&dest_info, sizeof(dest_info));
-    close(sock);
-}
-
+void send_raw_ip_packet(struct iphdr *ip);
 
 unsigned short in_cksum(unsigned short *buf, int length)
 {
@@ -109,4 +88,26 @@ int main()
     send_raw_ip_packet(ip);
 
     return 0;
+}
+
+void send_raw_ip_packet(struct iphdr *ip)
+{
+    struct sockaddr_in dest_info;
+    int enable = 1;
+
+    // Step 1: Create a raw network socket.
+    int sock = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
+
+    // Step 2: Set socket option.
+    setsockopt(sock, IPPROTO_IP, IP_HDRINCL,
+               &enable, sizeof(enable));
+
+    // Step 3: Provide needed information about destination.
+    dest_info.sin_family = AF_INET;
+    dest_info.sin_addr.s_addr = ip->daddr;
+
+    // Step 4: Send the packet out.
+    sendto(sock, ip, ntohs(ip->tot_len), 0,
+           (struct sockaddr *)&dest_info, sizeof(dest_info));
+    pclose(sock);
 }
