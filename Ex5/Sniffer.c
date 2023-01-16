@@ -14,8 +14,6 @@
 #include <netinet/ip.h>      // IP header details
 #include <netinet/ip_icmp.h> // ICMP header details
 
-FILE *file;
-
 /* Application header */
 typedef struct calculatorPacket
 {
@@ -24,10 +22,15 @@ typedef struct calculatorPacket
     uint16_t reserved : 3, c_flag : 1, s_flag : 1, t_flag : 1, status : 10;
     uint16_t cache;
     uint16_t padding;
-} cpack, *pcpack;
+} *pcpack;
 
 void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
 {
+    FILE *file = fopen("206530172_209498211.txt", "w");
+    if (file == NULL)
+    {
+        printf("Can't open file: %d\n", errno);
+    }
     // Ethernet
     struct ethhdr *ethernet = (struct ethhdr *)packet;
     // IP
@@ -42,7 +45,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     // time_t unixTime = payload->unixtime;
     // struct time *utc = gmtime(&unixTime);
 
-    fprintf(file, "\n-----------TCP-----------");
+    fprintf(file, "\n-----------TCP-----------\n");
     fprintf(file, "Source_ip: %s\n", inet_ntoa(source.sin_addr));
     fprintf(file, "Dest_ip: %s\n", inet_ntoa(dest.sin_addr));
     fprintf(file, "Source_port: %u\n", ntohs(tcp->source));
@@ -56,9 +59,11 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     fprintf(file, "Cache_control: %d\n", payload->cache);
     fprintf(file, "Data: %d\n", payload->padding);
     fprintf(file, "\n-------------------------");
+
+    fclose(file);
 }
 
-int main(int argc, char *argv[])
+int main()
 {
     // Handle the sniffed device
     pcap_t *handle;
@@ -70,12 +75,6 @@ int main(int argc, char *argv[])
     char filter_exp[] = "tcp";
     // IP of our sniffing device
     bpf_u_int32 net;
-
-    file = fopen("206530172_209498211.txt", "w");
-    if (file = NULL)
-    {
-        printf("Can't open file: %d\n", errno);
-    }
 
     // Open live pcap session on NIC with name loopback
     handle = pcap_open_live("lo", BUFSIZ, 1, 1000, errbuf);
@@ -101,7 +100,5 @@ int main(int argc, char *argv[])
     pcap_loop(handle, -1, got_packet, NULL);
 
     pcap_close(handle); // Close the handle
-
-    fclose(file);
     return 0;
 }
