@@ -31,35 +31,47 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     {
         printf("Can't open file: %d\n", errno);
     }
+    int packet_len = header->len;
     // Ethernet
     struct ethhdr *ethernet = (struct ethhdr *)packet;
     // IP
     struct iphdr *ip = (struct iphdr *)(packet + sizeof(struct ethhdr));
+    unsigned short iphdrlen = ip->ihl*4;
     struct sockaddr_in source, dest;
     source.sin_addr.s_addr = ip->saddr;
     dest.sin_addr.s_addr = ip->daddr;
     // TCP
     struct tcphdr *tcp = (struct tcphdr *)(packet + sizeof(struct iphdr) + sizeof(struct ethhdr));
+    unsigned long tcphdrlen = tcp->doff*4;
     // Payload
     pcpack payload = (pcpack)(packet + sizeof(struct tcphdr) + sizeof(struct iphdr) + sizeof(struct ethhdr));
-    // time_t unixTime = payload->unixtime;
-    // struct time *utc = gmtime(&unixTime);
+    
+    time_t unixTime = payload->unixtime;
+    struct time *utc = gmtime(&unixTime);
 
     fprintf(file, "\n-----------TCP-----------\n");
     fprintf(file, "Source_ip: %s\n", inet_ntoa(source.sin_addr));
     fprintf(file, "Dest_ip: %s\n", inet_ntoa(dest.sin_addr));
     fprintf(file, "Source_port: %u\n", ntohs(tcp->source));
     fprintf(file, "Dest_port: %u\n", ntohs(tcp->dest));
-    // fprintf(file, "Timestamp: %s\n", asctime(utc));
+    fprintf(file, "Timestamp: %s\n", asctime(utc));
     fprintf(file, "Total_length: %d\n", payload->length);
     fprintf(file, "Cache_flag: %d\n", payload->c_flag);
     fprintf(file, "Steps_flag: %d\n", payload->s_flag);
     fprintf(file, "Type_flag: %d\n", payload->t_flag);
     fprintf(file, "Status_code: %d\n", payload->status);
-    fprintf(file, "Cache_control: %d\n", payload->cache);
-    fprintf(file, "Padding: %d\n", payload->padding);
-    fprintf(file, "Data: %d\n", payload->padding);
-    PrintData(packet + sizeof(payload), sizeof(header));
+    fprintf(file, "Cache_control: %d\n", htons(payload->cache));
+    fprintf(file, "Padding: %d\n", htons(payload->padding));
+    fprintf(file, "Payload\n");
+    
+    for(int i = 0; i < packet_len; i++)
+    {
+        fprintf(file, "%02x\n", (unsigned char)packet[i]);
+        if(i % 16 == 0)
+        {
+            fprintf(file, "\n");
+        }
+    }
     fprintf(file, "\n-------------------------");
 
     fclose(file);
