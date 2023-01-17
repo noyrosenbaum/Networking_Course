@@ -15,22 +15,18 @@
 #include <netinet/ip_icmp.h> // ICMP header details
 int counter = 1;
 /* Application header */
-struct appPacket
+struct app_hdr
 {
     uint32_t unixtime;
     uint16_t length;
-    uint16_t reserved : 3, c_flag : 1, s_flag : 1, t_flag : 1, status : 10;
+    uint16_t reservedflags;
     uint16_t cache;
     uint16_t padding;
 };
 
 void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
 {
-    
-    // while (1)
-    // {
-    // }
-    FILE *file = fopen("206530172_209498211.txt", "w");
+    FILE *file = fopen("206530172_209498211.txt", "a");
     if (file == NULL)
     {
         printf("Can't open file: %d\n", errno);
@@ -50,8 +46,8 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     struct tcphdr *tcp = (struct tcphdr *)(packet + sizeof(struct iphdr) + sizeof(struct ethhdr));
     unsigned long tcphdrlen = tcp->doff * 4;
     // App
-    struct appPacket *app = (struct appPacket *)(packet + sizeof(struct tcphdr) + sizeof(struct iphdr) + sizeof(struct ethhdr));
-    char *data = (char *)(app + sizeof(struct appPacket));
+    struct app_hdr *app = (struct app_hdr *)(packet + sizeof(struct tcphdr) + sizeof(struct iphdr) + sizeof(struct ethhdr));
+    char *data = (char *)(app + sizeof(struct app_hdr));
     // TCP payload
     int payloadLen = ntohs(ip->tot_len) - (iphdrlen + tcphdrlen);
 
@@ -62,10 +58,10 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     fprintf(file, "Dest_port: %u\n", ntohs(tcp->dest));
     fprintf(file, "Timestamp: %d\n", htonl(app->unixtime));
     fprintf(file, "Total_length: %d\n", ntohs(app->length));
-    fprintf(file, "Cache_flag: %d\n", ntohs(app->c_flag));
-    fprintf(file, "Steps_flag: %d\n", ntohs(app->s_flag));
-    fprintf(file, "Type_flag: %d\n", ntohs(app->t_flag));
-    fprintf(file, "Status_code: %d\n", ntohs(app->status));
+    fprintf(file, "Cache_flag: %d\n", (ntohs(app->reservedflags) >> 12) & 1);
+    fprintf(file, "Steps_flag: %d\n", (ntohs(app->reservedflags) >> 11) & 1);
+    fprintf(file, "Type_flag: %d\n", (ntohs(app->reservedflags) >> 10) & 1);
+    fprintf(file, "Status_code: %d\n", ntohs(app->reservedflags) & 1023);
     fprintf(file, "Cache_control: %d\n", ntohs(app->cache));
     fprintf(file, "Padding: %d\n", ntohs(app->padding));
     fprintf(file, "Payload:\n");
@@ -101,7 +97,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     //         fprintf(file, "\n");
     //     }
     // }
-   fprintf(file, "\n---------------------------------------------\n");
+    fprintf(file, "\n---------------------------------------------\n");
 
     fclose(file);
 }
