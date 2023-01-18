@@ -47,7 +47,7 @@ make all
 #### Sniffer
 
 1. for Sniffer, run on seperate terminals:
-2. Terminal 1:
+2. Terminal 1: \
 Go to this directory:
 ```sh
 cd ~/Networking_Course/Ex2/
