@@ -3,19 +3,17 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
-#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <errno.h>
 #include <time.h>
-#include <net/ethernet.h> // Ethernet header details
-#include <netinet/ether.h>
+#include <net/ethernet.h>    // Ethernet header details
 #include <netinet/tcp.h>     // TCP header details
 #include <netinet/udp.h>     // UDP header details
 #include <netinet/ip.h>      // IP header details
 #include <netinet/ip_icmp.h> // ICMP header details
-char *newSourceIP;
-char *destinationIP;
+char interface;
+
 unsigned short in_cksum(unsigned short *buf, int length)
 {
     unsigned short *w = buf;
@@ -52,28 +50,21 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     if (header->len > 0)
     {
         // Ethernet
-        struct ethhdr *ethernet = (struct ethhdr *)packet;
-        if (ntohs(ethernet->h_proto) == 0x0800)
+        struct ether_header *ethernet = (struct ether_header *)packet;
+        if (ntohs(ethernet->ether_type) == 0x0800)
         { // 0x0800 is IP type
             // IP
             struct iphdr *ip = (struct iphdr *)(packet + sizeof(struct ethhdr));
-            unsigned short iphdrlen = ip->ihl * 4;
-            // struct sockaddr_in source, dest;
-            // source.sin_addr.s_addr = ip->saddr;
-            // dest.sin_addr.s_addr = ip->daddr;
-            ip->saddr = inet_addr(newSourceIP);
-            ip->daddr = inet_addr(destinationIP);
-
             if (ip->protocol == IPPROTO_ICMP)
             {
                 // ICMP
-                struct icmphdr *icmp = (struct icmphdr *)(packet + sizeof(struct iphdr));
+                struct icmphdr *icmp = (struct icmphdr *)((u_char *)ip + sizeof(struct iphdr));
 
                 if (icmp->type == ICMP_ECHO)
                 {
                     // Calculate the checksum for integrity
                     icmp->type = ICMP_ECHOREPLY;
-                    icmp->checksum = in_cksum((unsigned short *)icmp, iphdrlen - sizeof(struct iphdr));
+                    icmp->checksum = in_cksum((unsigned short *)packet, sizeof(struct icmphdr));
 
                     ip->id = 0;
                     ip->version = 4;
@@ -84,8 +75,6 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
                     in_addr_t swapped = ip->saddr;
                     ip->saddr = ip->daddr;
                     ip->daddr = swapped;
-                    // ip->saddr = inet_addr("10.0.2.5");
-                    // ip->daddr = inet_addr("1.2.3.4");
                 }
 
                 // Create a raw socket
@@ -116,17 +105,16 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
                 {
                     printf("sendto() failed with error: %d\n", errno);
                 }
-                printf("Sent a fake ping from source IP: %s to destination: %s\n", newSourceIP, destinationIP);
+                printf("Sent a fake ICMP replay\n");
                 close(sock);
             }
         }
     }
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
-    newSourceIP = argv[1];
-    destinationIP = argv[2];
+    char *interface = argv[1];
     // Handle the sniffed device
     pcap_t *handle;
     // Handles errors
@@ -139,7 +127,7 @@ int main(int argc, char *argv[])
     bpf_u_int32 net;
 
     // Open live pcap session on NIC with name loopback
-    handle = pcap_open_live("lo", BUFSIZ, 1, 1000, errbuf);
+    handle = pcap_open_live(interface, BUFSIZ, 1, 1000, errbuf);
     if (handle == NULL)
     {
         printf("Can't open device: %s\n", errbuf);
