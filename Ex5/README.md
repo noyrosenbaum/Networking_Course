@@ -260,7 +260,7 @@ for example:
 
 2. Run a Ping command from Host A:
 ```sh
-ping <IP>
+ping <Destination IP>
 ```
 
 ##### Gateway
