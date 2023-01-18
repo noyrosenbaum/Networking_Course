@@ -9,11 +9,20 @@ Submitters: Noy Rosenbaum and Yael Rosen
 
 ### Part 1 - Sniffer
 
+Packet sniffing involves capturing live data as it travels across a network. To capture all packets on the network, it is done by using a raw socket, because with a normal socket like a stream or datagram, the application will not receive the packet headers, information like MAC address, source IP, etc.
+Generally, when sniffing packets, we are only interested in specific types of packets, so we need to do some filtering on the packets, the filter must be as close to the NIC as possible (filter as early as
+possible). To filter and only capture specific types of packets, a BSD packet filtering system is used, which sniffers can specify to the kernel, the packets they are interested in.
+Without the pcap library, creating a sniffer that works across different operating systems and allows for easy filtering can be difficult.
+In our custom Sniffer, we captured TCP packets and exported some values to a log file.
+
 *Question:* Why do you need the root privilege to run a sniffer program? Where does the program fail if it is executed without the root privilege?
 *Answer:* Sniffing data packets is a privileged task as it raises concerns about privacy and security. If non-privileged users are able to access this function, they may potentially steal personal information and account passwords, violating others' privacy.
 Run with normal permissions, the returned socket descriptor is -1, indicating that the creation of raw socket failed.
 
 ### Part 2 - Spoofer
+
+Spoofer fakes an ICMP ping echo request and sends it to destination.
+It creates false source ICMP packets from the Spoofer.
 
 *Question:* Can you set the IP packet length field to an arbitrary value, regardless of how big the actual packet is? \
 *Answer:*   The IP packet length field must match the actual size of the packet, which is specified as a 16 bits value that represents the total length of the packet, including header and payload. If this field is set to a value that does not match the actual size of the packet, it will not be able to be forwarded. \
@@ -21,6 +30,10 @@ Run with normal permissions, the returned socket descriptor is -1, indicating th
 *Answer:*   You do not need to calculate the checksum for the IP header it is filled by the operating system.
 
 ### Part 3 - Snoofer - combines both Sniffer and Spoofer
+
+we need to capture packets first, and then spoof a response based on the captured packets.
+From the user container, you can generate an IPX. This will generate an ICMP Echo Request packet. If X is activated, the ping program will receive an echo response and print out the response. Your sniffing and spoofing program runs on a VM, which monitors the LAN through packet sniffing. Whenever it sees an ICMP echo request, your program should immediately send an echo reply using packet spoofing techniques, no matter what the destination IP address is. So, regardless of whether machine X is active or not, the ping program will always receive a reply indicating that X is active.
+
 
 ### Part 4 - Gateway
 
@@ -117,6 +130,7 @@ Go to this directory:
 ```sh
 cd ./Labsetup
 ```
+Run:
 ```sh
 sudo docker-compose build
 ```
