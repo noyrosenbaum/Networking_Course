@@ -3,6 +3,25 @@
 
 Submitters: Noy Rosenbaum and Yael Rosen
 
+- [Packet Sniffing and Spoofing](#packet-sniffing-and-spoofing)
+  - [Description](#description)
+    - [Part 1 - Sniffer](#part-1---sniffer)
+    - [Part 2 - Spoofer](#part-2---spoofer)
+    - [Part 3 - Snoofer - combines both Sniffer and Spoofer](#part-3---snoofer---combines-both-sniffer-and-spoofer)
+    - [Part 4 - Gateway](#part-4---gateway)
+  - [Code run tutorial - Ubuntu](#code-run-tutorial---ubuntu)
+    - [Setup project locally](#setup-project-locally)
+      - [Clone an existing repository (**if it does not exist locally already**):](#clone-an-existing-repository-if-it-does-not-exist-locally-already)
+      - [Compilation using Makefile](#compilation-using-makefile)
+      - [Run files](#run-files)
+      - [Sniffer](#sniffer)
+      - [Spoofer](#spoofer)
+      - [Snoofer](#snoofer)
+        - [Setup Dockers](#setup-dockers)
+        - [Run Snoofer](#run-snoofer)
+      - [Gateway](#gateway)
+      - [Delete exe files](#delete-exe-files)
+
 ## Description
 
 **NOTE:** For detailed explanations about any of the code files, check out the comments in each one of the scripts.
@@ -21,8 +40,8 @@ Run with normal permissions, the returned socket descriptor is -1, indicating th
 
 ### Part 2 - Spoofer
 
-Spoofer fakes an ICMP ping echo request and sends it to destination.
-It creates false source ICMP packets from the Spoofer.
+Generally, transmitting packets has only control of few fields in the header, spoofing permits manipulation of critical fields in the packet headers.
+Our custom Spoofer fakes an ICMP ping echo request and sends it to destination from false source ICMP packets using raw socket.
 
 *Question:* Can you set the IP packet length field to an arbitrary value, regardless of how big the actual packet is? \
 *Answer:*   The IP packet length field must match the actual size of the packet, which is specified as a 16 bits value that represents the total length of the packet, including header and payload. If this field is set to a value that does not match the actual size of the packet, it will not be able to be forwarded. \
@@ -31,11 +50,22 @@ It creates false source ICMP packets from the Spoofer.
 
 ### Part 3 - Snoofer - combines both Sniffer and Spoofer
 
-we need to capture packets first, and then spoof a response based on the captured packets.
-From the user container, you can generate an IPX. This will generate an ICMP Echo Request packet. If X is activated, the ping program will receive an echo response and print out the response. Your sniffing and spoofing program runs on a VM, which monitors the LAN through packet sniffing. Whenever it sees an ICMP echo request, your program should immediately send an echo reply using packet spoofing techniques, no matter what the destination IP address is. So, regardless of whether machine X is active or not, the ping program will always receive a reply indicating that X is active.
-
+We need to capture packets first, and then spoof a response based on the captured packets.
+From Host A's container, you can activate a ping command, This will generate an ICMP Echo Request packet. If the destination is activated, the ping program will receive an echo response and print out the response.
+Snoofer program runs on the Attacker's container, which monitors the LAN\WAN through packet sniffing. Whenever it sees an ICMP echo request, Snoofer would immediately send an echo reply using packet spoofing techniques, no matter what the destination IP address is. So, regardless of whether the destination is active or not, the ping program will always receive a reply indicating that the destination is active.
+We run the ping command from Host A 3 times:
+* From Host A to Host B
+* From Host A to WAP IP - Google for example.
+* From Host A to a fake IP - 1.2.3.4 for example.
+For every ECHO request we sent, we got a reply from the destination if it was active, and another reply from our Attacker.
 
 ### Part 4 - Gateway
+
+Gateway takes the name of a host on the command line and creates a datagram socket to that host (using port number P+1), it also creates another datagram socket where it can receive
+datagrams from any host on port number P.
+Next, it enters an infinite loop in each iteration of which
+it receives a datagram from port P, then samples a random number using ((float)random())/((float)RAND_MAX) - if the number obtained is greater than 0.5, the datagram
+received is forwarded onto the outgoing socket to port P+1, otherwise the datagram is discarded and the process goes back to waiting for another incoming datagram.
 
 ## Code run tutorial - Ubuntu
 
