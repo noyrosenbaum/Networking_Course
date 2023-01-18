@@ -9,7 +9,16 @@ Submitters: Noy Rosenbaum and Yael Rosen
 
 ### Part 1 - Sniffer
 
+*Question:* Why do you need the root privilege to run a sniffer program? Where does the program fail if it is executed without the root privilege?
+*Answer:* Sniffing data packets is a privileged task as it raises concerns about privacy and security. If non-privileged users are able to access this function, they may potentially steal personal information and account passwords, violating others' privacy.
+Run with normal permissions, the returned socket descriptor is -1, indicating that the creation of raw socket failed.
+
 ### Part 2 - Spoofer
+
+*Question:* Can you set the IP packet length field to an arbitrary value, regardless of how big the actual packet is?
+*Answer:*   The IP packet length field must match the actual size of the packet, which is specified as a 16 bits value that represents the total length of the packet, including header and payload. If this field is set to a value that does not match the actual size of the packet, it will not be able to be forwarded.
+*Question:* Using the raw socket programming, do you have to calculate the checksum for the IP header?
+*Answer:*   You do not need to calculate the checksum for the IP header it is filled by the operating system.
 
 ### Part 3 - Snoofer - combines both Sniffer and Spoofer
 
