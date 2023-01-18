@@ -32,7 +32,6 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
         printf("Can't open file: %d\n", errno);
     }
     fprintf(file, "\n---------------------------------------------\n");
-    // int packet_len = header->len;
     fprintf(file, "Packet number %d:\n", counter);
     counter++;
     // Ethernet
@@ -49,7 +48,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     // App
     struct app_hdr *app = (struct app_hdr *)(packet + sizeof(struct tcphdr) + sizeof(struct iphdr) + sizeof(struct ethhdr));
     char *data = (char *)(app + sizeof(struct app_hdr));
-    // TCP payload
+    // payload
     int payloadLen = ntohs(ip->tot_len) - (iphdrlen + tcphdrlen);
 
     fprintf(file, "---------------------------------------------\n");
