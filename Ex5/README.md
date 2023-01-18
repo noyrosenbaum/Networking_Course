@@ -44,11 +44,40 @@ make all
 
 #### Run files
 
-1. for Sniffer, run:
+#### Sniffer
+
+1. for Sniffer, run on seperate terminals:
+2. Terminal 1:
+Go to this directory:
 ```sh
-sudo ./PartA <IP_DESTINATION>
+cd ~/Networking_Course/Ex2/
 ```
-2. for Spoofer, run:
+Run this command:
+```sh
+python3 ./server.py
+```
+3. Terminal 2:
+Go to this directory:
+```sh
+cd ~/Networking_Course/Ex5/
+```
+Run this command after you compiled the file:
+```sh
+sudo ./Sniffer
+```
+4. Terminal 3:
+Go to this directory:
+```sh
+cd ~/Networking_Course/Ex2/
+```
+Run this command:
+```sh
+python3 ./client.py
+```
+
+#### Spoofer
+   
+1. for Spoofer, run:
 ```sh
 sudo ./PartB <IP_DESTINATION>
 ```
