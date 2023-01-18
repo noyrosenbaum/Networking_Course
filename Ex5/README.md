@@ -77,9 +77,18 @@ python3 ./client.py
 
 #### Spoofer
    
-1. for Spoofer, run:
+1. for Spoofer:
+Go to this directory:
 ```sh
-sudo ./PartB <IP_DESTINATION>
+cd ~/Networking_Course/Ex5/
+```
+2. Run this command after you compiled the file:
+```sh
+sudo ./Spoofer <Source IP> <Destination IP>
+```
+For example:
+```sh
+sudo ./Spoofer 1.2.3.4 8.8.8.8
 ```
 
 #### Delete exe files
