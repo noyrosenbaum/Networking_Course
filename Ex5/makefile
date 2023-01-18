@@ -8,6 +8,6 @@ Spoofer: Spoofer.c
 
 Snoofer: Snoofer.c
 	gcc Snoofer.c -o Snoofer -lpcap
-	
+
 clean:
-	rm -f *.o  Sniffer Spoofer
+	rm -f *.o  Sniffer Spoofer Snoofer
