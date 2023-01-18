@@ -56,8 +56,8 @@ Run this command:
 ```sh
 python3 ./server.py
 ```
-3. Terminal 2:
-Go to this directory:
+3. Terminal 2: \
+Go to this directory: 
 ```sh
 cd ~/Networking_Course/Ex5/
 ```
@@ -65,8 +65,8 @@ Run this command after you compiled the file:
 ```sh
 sudo ./Sniffer
 ```
-4. Terminal 3:
-Go to this directory:
+1. Terminal 3: \
+Go to this directory: 
 ```sh
 cd ~/Networking_Course/Ex2/
 ```
@@ -77,7 +77,7 @@ python3 ./client.py
 
 #### Spoofer
    
-1. for Spoofer:
+1. for Spoofer: \
 Go to this directory:
 ```sh
 cd ~/Networking_Course/Ex5/
