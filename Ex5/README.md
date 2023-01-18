@@ -99,6 +99,124 @@ For example:
 ```sh
 sudo ./Spoofer 1.2.3.4 8.8.8.8
 ```
+#### Snoofer
+
+##### Setup Dockers
+
+Here are the setups to each one of the terminals: 
+1. Terminal 1: \
+Go to this directory: 
+```sh
+cd ~/Networking_Course/Ex5/
+```
+Run these commands by their order:
+```sh
+sudo apt install docker-compose
+```
+Go to this directory: 
+```sh
+cd ./Labsetup
+```
+```sh
+sudo docker-compose build
+```
+```sh
+sudo docker-compose up
+```
+2. Terminal 2: \
+Go to this directory: 
+```sh
+cd ~/Networking_Course/Ex5/Labsetup
+```
+Check out containers' status:
+```sh
+sudo docker ps
+```
+Go with root privilage to HostA's shell:
+```sh
+sudo docker exec -it <CONTAINER ID> /bin/bash
+```
+Run the commands:
+```sh
+apt-get update
+```
+```sh
+apt-get upgrade
+```
+```sh
+apt-get install build-essential gcc gdb perl make dkms libpcap-dev
+```
+3. Terminal 3: \
+Go to this directory: 
+```sh
+cd ~/Networking_Course/Ex5/Labsetup
+```
+Check out containers' status:
+```sh
+sudo docker ps
+```
+Go with root privilage to HostB's shell:
+```sh
+sudo docker exec -it <CONTAINER ID> /bin/bash
+```
+Run the commands:
+```sh
+apt-get update
+```
+```sh
+apt-get upgrade
+```
+```sh
+apt-get install build-essential gcc gdb perl make dkms libpcap-dev
+```
+3. Terminal 3: \
+Go to this directory: 
+```sh
+cd ~/Networking_Course/Ex5/Labsetup
+```
+Check out containers' status:
+```sh
+sudo docker ps
+```
+Go with root privilage to Attacker's shell:
+```sh
+sudo docker exec -it <CONTAINER ID> /bin/bash
+```
+Run the commands:
+```sh
+apt-get update
+```
+```sh
+apt-get upgrade
+```
+```sh
+apt-get install build-essential gcc gdb perl make dkms libpcap-dev
+```
+**Make sure to copy the Snoofer exe file to Attacker's volume file**
+Go to this directory: 
+```sh
+cd ./volumes
+```
+Give Snoofer permissions:
+```sh
+chmod +x ./Snoofer
+```
+
+##### Run Snoofer
+
+1. Run Snoofer:
+```sh
+./Snoofer <Interface>
+```
+for example:
+```sh
+./Snoofer br-f0642a86f103
+```
+
+2. Run a Ping command from Host A:
+```sh
+ping <IP>
+```
 
 #### Gateway
 
