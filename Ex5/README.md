@@ -214,7 +214,7 @@ apt-get upgrade
 ```sh
 apt-get install build-essential gcc gdb perl make dkms libpcap-dev
 ```
-3. Terminal 3: \
+4. Terminal 4: \
 Go to this directory: 
 ```sh
 cd ~/Networking_Course/Ex5/Labsetup
