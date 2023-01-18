@@ -36,7 +36,7 @@ To filter and only capture specific types of packets, a BSD packet filtering sys
 Without the pcap library, creating a sniffer that works across different operating systems and allows for easy filtering can be difficult. \
 In our custom Sniffer, we captured TCP packets and exported some values to a log file.
 
-* **Question:**  *Why do you need the root privilege to run a sniffer program? Where does the program fail if it is executed without the root privilege?*
+* **Question:**  *Why do you need the root privilege to run a sniffer program? Where does the program fail if it is executed without the root privilege?* \
 **Answer:**  Sniffing data packets is a privileged task as it raises concerns about privacy and security. If non-privileged users are able to access this function, they may potentially steal personal information and account passwords, violating others' privacy.
 Run with normal permissions, the returned socket descriptor is -1, indicating that the creation of raw socket failed.
 
@@ -53,8 +53,8 @@ Our custom Spoofer fakes an ICMP ping echo request and sends it to destination f
 ### Part 3 - Snoofer - combines both Sniffer and Spoofer
 
 We need to capture packets first, and then spoof a response based on the captured packets. \
-From Host A's container, you can activate a ping command, This will generate an ICMP Echo Request packet. If the destination is activated, the ping program will receive an echo response and print out the response.
-Snoofer program runs on the Attacker's container, which monitors the LAN\WAN through packet sniffing. Whenever it sees an ICMP echo request, Snoofer would immediately send an echo reply using packet spoofing techniques, no matter what the destination IP address is. So, regardless of whether the destination is active or not, the ping program will always receive a reply indicating that the destination is active.
+From Host A's container, you can activate a ping command, This will generate an ICMP Echo Request packet. If the destination is activated, the ping program will receive an echo response and print out the response. \
+Snoofer program runs on the Attacker's container, which monitors the LAN\WAN through packet sniffing. Whenever it sees an ICMP echo request, Snoofer would immediately send an echo reply using packet spoofing techniques, no matter what the destination IP address is. So regardless of whether the destination is active or not, the ping program will always receive a reply indicating that the destination is active. \
 We run the ping command from Host A 3 times:
 * From Host A to Host B
 * From Host A to WAP IP - Google for example.
@@ -65,7 +65,7 @@ For every ECHO request we sent, we got a reply from the destination if it was ac
 
 Gateway takes the name of a host on the command line and creates a datagram socket to that host (using port number P+1), it also creates another datagram socket where it can receive
 datagrams from any host on port number P. \
-Next, it enters an infinite loop in each iteration of which it receives a datagram from port P, then samples a random number using ((float)random())/((float)RAND_MAX):
+Next, it enters an infinite loop in each iteration of which it receives a datagram from port P, then samples a random number using ((float)random())/((float)RAND_MAX): \
 if the number obtained is greater than 0.5, the datagram received is forwarded onto the outgoing socket to port P+1, otherwise the datagram is discarded and the process goes back to waiting for another incoming datagram.
 
 ## Code run tutorial - Ubuntu
