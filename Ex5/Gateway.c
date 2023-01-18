@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
         float random_num = ((float)random() / (float)RAND_MAX);
         if (random_num > 0.5)
         {
-            printf("Random number is: %d\n", random_num);
+            printf("Random number is: %f\n", random_num);
             printf("Forwards data...\n");
             if (sendto(client, data, sizeof(data), 0, (struct sockaddr *)&clientAddress, clientAddressLen) == -1)
             {
