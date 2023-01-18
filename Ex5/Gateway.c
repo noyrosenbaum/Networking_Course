@@ -11,7 +11,7 @@
 #include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
 
-int *port;
+int port;
 
 int serverUDP()
 {
@@ -79,9 +79,9 @@ int clientUDP()
     return client;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
-    port = argv[1];
+    char *port = argv[1];
     char data[IP_MAXPACKET];
     int client = clientUDP();
     int server = serverUDP();
