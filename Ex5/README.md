@@ -55,8 +55,8 @@ make all
 
 #### Sniffer
 
-1. for Sniffer, run on seperate terminals:
-2. Terminal 1: \
+For Sniffer, run on seperate terminals:
+1. Terminal 1: \
 Go to this directory:
 ```sh
 cd ~/Networking_Course/Ex2/
@@ -65,7 +65,7 @@ Run this command:
 ```sh
 python3 ./server.py
 ```
-3. Terminal 2: \
+2. Terminal 2: \
 Go to this directory: 
 ```sh
 cd ~/Networking_Course/Ex5/
@@ -74,7 +74,7 @@ Run this command after you compiled the file:
 ```sh
 sudo ./Sniffer
 ```
-1. Terminal 3: \
+3. Terminal 3: \
 Go to this directory: 
 ```sh
 cd ~/Networking_Course/Ex2/
@@ -98,6 +98,35 @@ sudo ./Spoofer <Source IP> <Destination IP>
 For example:
 ```sh
 sudo ./Spoofer 1.2.3.4 8.8.8.8
+```
+
+#### Gateway
+
+1. Terminal 1: \
+Go to this directory: 
+```sh
+cd ~/Networking_Course/Ex5/
+```
+Run this command after you compiled the file:
+```sh
+./Gateway <port>
+```
+For example:
+```sh
+./Gateway 8000
+```
+2. Terminal 2: \
+Go to this directory: 
+```sh
+cd ~/Networking_Course/Ex5/
+```
+Run this command:
+```sh
+echo -n this-is-a-message | nc -4u -w1 127.0.0.1 <port>
+```
+For example:
+```sh
+echo -n this-is-a-message | nc -4u -w1 127.0.0.1 8000
 ```
 
 #### Delete exe files
