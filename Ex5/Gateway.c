@@ -15,7 +15,7 @@ int port;
 
 int serverUDP()
 {
-    // Create socket
+    // Create a UDP server socket
     int server;
     if ((server = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     {
@@ -48,8 +48,8 @@ int serverUDP()
 
 int clientUDP()
 {
+    // Create a UDP client socket
     int client;
-    // Create socket
     if ((client = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     {
         printf("Could not create socket : %d", errno);
@@ -63,7 +63,7 @@ int clientUDP()
         return 1;
     }
     // Setup the server address structure.
-    // Port and IP should be filled in network byte order (learn bin-endian, little-endian)
+    // Port and IP should be filled in network byte order.
     struct sockaddr_in serverAddress;
     memset(&serverAddress, 0, sizeof(serverAddress));
     serverAddress.sin_addr.s_addr = INADDR_ANY;
