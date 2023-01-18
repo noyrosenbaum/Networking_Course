@@ -46,7 +46,7 @@ Generally, transmitting packets has only control of few fields in the header, sp
 Our custom Spoofer fakes an ICMP ping echo request and sends it to destination from false source ICMP packets using raw socket.
 
 * **Question:**  *Can you set the IP packet length field to an arbitrary value, regardless of how big the actual packet is?* \
-**Answer:**    The IP packet length field must match the actual size of the packet, which is specified as a 16 bits value that represents the total length of the packet, including header and payload. If this field is set to a value that does not match the actual size of the packet, it will not be able to be forwarded. \
+**Answer:**    The IP packet length field must match the actual size of the packet, which is specified as a 16 bits value that represents the total length of the packet, including header and payload. If this field is set to a value that does not match the actual size of the packet, it will not be able to be forwarded.
 * **Question:**  *Using the raw socket programming, do you have to calculate the checksum for the IP header?* \
 **Answer:**    You do not need to calculate the checksum for the IP header it is filled by the operating system.
 
@@ -237,7 +237,7 @@ apt-get upgrade
 ```sh
 apt-get install build-essential gcc gdb perl make dkms libpcap-dev
 ```
-**Make sure to copy the Snoofer exe file to Attacker's volume file**
+**Make sure to copy the Snoofer exe file to Attacker's volume file** \
 Go to this directory: 
 ```sh
 cd ./volumes
