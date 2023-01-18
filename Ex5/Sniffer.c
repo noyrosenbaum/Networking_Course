@@ -31,6 +31,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     {
         printf("Can't open file: %d\n", errno);
     }
+    fprintf(file, "\n---------------------------------------------\n");
     // int packet_len = header->len;
     fprintf(file, "Packet number %d:\n", counter);
     counter++;
@@ -51,21 +52,24 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     // TCP payload
     int payloadLen = ntohs(ip->tot_len) - (iphdrlen + tcphdrlen);
 
-    fprintf(file, "\n---------------------------------------------\n");
-    fprintf(file, "Source_ip: %s\n", inet_ntoa(source.sin_addr));
-    fprintf(file, "Dest_ip: %s\n", inet_ntoa(dest.sin_addr));
-    fprintf(file, "Source_port: %u\n", ntohs(tcp->source));
-    fprintf(file, "Dest_port: %u\n", ntohs(tcp->dest));
-    fprintf(file, "Timestamp: %d\n", htonl(app->unixtime));
-    fprintf(file, "Total_length: %d\n", ntohs(app->length));
-    fprintf(file, "Cache_flag: %d\n", (ntohs(app->reservedflags) >> 12) & 1);
-    fprintf(file, "Steps_flag: %d\n", (ntohs(app->reservedflags) >> 11) & 1);
-    fprintf(file, "Type_flag: %d\n", (ntohs(app->reservedflags) >> 10) & 1);
-    fprintf(file, "Status_code: %d\n", ntohs(app->reservedflags) & 1023);
-    fprintf(file, "Cache_control: %d\n", ntohs(app->cache));
-    fprintf(file, "Padding: %d\n", ntohs(app->padding));
-    fprintf(file, "Payload:\n");
-
+    fprintf(file, "---------------------------------------------\n");
+    fprintf(file, "IP header:\n");
+    fprintf(file, " |-Source_ip:        %s\n", inet_ntoa(source.sin_addr));
+    fprintf(file, " |-Dest_ip:          %s\n", inet_ntoa(dest.sin_addr));
+    fprintf(file, "TCP header:\n");
+    fprintf(file, " |-Source_port:      %u\n", ntohs(tcp->source));
+    fprintf(file, " |-Dest_port:        %u\n", ntohs(tcp->dest));
+    fprintf(file, "App header:\n");
+    fprintf(file, " |-Timestamp:        %d seconds since 1970-01-01 00:00:00 UTC \n", htonl(app->unixtime));
+    fprintf(file, " |-Total_length:     %d bytes \n", ntohs(app->length));
+    fprintf(file, " |-Cache_flag:       %d\n", (ntohs(app->reservedflags) >> 12) & 1);
+    fprintf(file, " |-Steps_flag:       %d\n", (ntohs(app->reservedflags) >> 11) & 1);
+    fprintf(file, " |-Type_flag:        %d\n", (ntohs(app->reservedflags) >> 10) & 1);
+    fprintf(file, " |-Status_code:      %d\n", ntohs(app->reservedflags) & 1023);
+    fprintf(file, " |-Cache_control:    %d\n", ntohs(app->cache));
+    fprintf(file, " |-Padding:          %d\n", ntohs(app->padding));
+    fprintf(file, " |-Payload: ");
+    fprintf(file, "\n");
     for (int i = 0; i < payloadLen; i++)
     {
         fprintf(file, "%02x ", *data);
@@ -88,17 +92,6 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
         }
     }
     fprintf(file, "   ");
-
-    // for (int i = 0; i < payloadLen + 40; i++)
-    // {
-    //     fprintf(file, "%02x", (unsigned char)packet[i]);
-    //     if (i % 16 == 0)
-    //     {
-    //         fprintf(file, "\n");
-    //     }
-    // }
-    fprintf(file, "\n---------------------------------------------\n");
-
     fclose(file);
 }
 
