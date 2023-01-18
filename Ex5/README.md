@@ -34,7 +34,7 @@ Generally, when sniffing packets, we are only interested in specific types of pa
 possible). \
 To filter and only capture specific types of packets, a BSD packet filtering system is used, which sniffers can specify to the kernel, the packets they are interested in. \
 Without the pcap library, creating a sniffer that works across different operating systems and allows for easy filtering can be difficult. \
-In our custom Sniffer, we captured TCP packets and exported some values to a log file.
+In our custom Sniffer, we captured TCP packets and exported some values to a log file using bitwise and pcap library.
 
 * **Question:**  *Why do you need the root privilege to run a sniffer program? Where does the program fail if it is executed without the root privilege?* \
 **Answer:**  Sniffing data packets is a privileged task as it raises concerns about privacy and security. If non-privileged users are able to access this function, they may potentially steal personal information and account passwords, violating others' privacy.
