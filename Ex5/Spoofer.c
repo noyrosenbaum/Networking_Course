@@ -51,8 +51,8 @@ unsigned short in_cksum(unsigned short *buf, int length)
 
 int main(int argc, char *argv[])
 {
-    destinationIP = argv[1];
-    newSourceIP = argv[2];
+    newSourceIP = argv[1];
+    destinationIP = argv[2];
     char buffer[IP_MAXPACKET];
     memset(buffer, 0, IP_MAXPACKET);
     // Ethernet
@@ -102,8 +102,8 @@ int send_raw_ip_packet(struct iphdr *ip)
     int sock = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
     if (sock == -1)
     {
-        fprintf(stderr, "socket() failed with error: %d", errno);
-        fprintf(stderr, "To create a raw socket, the process needs to be run by Admin/root user.\n\n");
+        printf("socket() failed with error: %d", errno);
+        printf("To create a raw socket, the process needs to be run by Admin/root user.\n\n");
         exit(1);
     }
 
@@ -122,7 +122,7 @@ int send_raw_ip_packet(struct iphdr *ip)
     // Step 4: Send the packet out.
     if (sendto(sock, ip, ntohs(ip->tot_len), 0, (struct sockaddr *)&dest_info, sizeof(dest_info)) == -1)
     {
-        fprintf(stderr, "sendto() failed with error: %d\n", errno);
+        printf("sendto() failed with error: %d\n", errno);
         return -1;
     }
     printf("Sent a packet from fake source IP: %s to destination: %s\n", newSourceIP, destinationIP);
