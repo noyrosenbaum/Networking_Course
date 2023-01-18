@@ -15,9 +15,9 @@ Run with normal permissions, the returned socket descriptor is -1, indicating th
 
 ### Part 2 - Spoofer
 
-*Question:* Can you set the IP packet length field to an arbitrary value, regardless of how big the actual packet is?
-*Answer:*   The IP packet length field must match the actual size of the packet, which is specified as a 16 bits value that represents the total length of the packet, including header and payload. If this field is set to a value that does not match the actual size of the packet, it will not be able to be forwarded.
-*Question:* Using the raw socket programming, do you have to calculate the checksum for the IP header?
+*Question:* Can you set the IP packet length field to an arbitrary value, regardless of how big the actual packet is? \
+*Answer:*   The IP packet length field must match the actual size of the packet, which is specified as a 16 bits value that represents the total length of the packet, including header and payload. If this field is set to a value that does not match the actual size of the packet, it will not be able to be forwarded. \
+*Question:* Using the raw socket programming, do you have to calculate the checksum for the IP header? \
 *Answer:*   You do not need to calculate the checksum for the IP header it is filled by the operating system.
 
 ### Part 3 - Snoofer - combines both Sniffer and Spoofer
